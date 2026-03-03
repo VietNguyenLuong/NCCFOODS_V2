@@ -1,68 +1,132 @@
 require('dotenv').config()
-const express    = require('express')
-const path       = require('path')
-const session    = require('express-session')
-const connectDB  = require('./config/db')
+const express      = require('express')
+const path         = require('path')
+const session      = require('express-session')
+const compression  = require('compression')
+const rateLimit    = require('express-rate-limit')
+const connectDB    = require('./config/db')
 const { loadUser } = require('./middleware/auth')
 
 const app = express()
 connectDB()
 
-// ── VIEW ENGINE ───────────────────────────────────────────
-app.set('view engine', 'pug')
-app.set('views', path.join(__dirname, 'views'))
-
-// Cache pug templates trong production
-if (process.env.NODE_ENV === 'production') {
-  app.enable('view cache')
-}
-
-// ── STATIC FILES ──────────────────────────────────────────
-// Cache static files 7 ngày
-app.use(express.static(path.join(__dirname, 'public'), {
-  maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
-  etag:   true,
-  lastModified: true
+// ── 1. COMPRESSION ────────────────────────────────────────
+// Gzip tất cả responses > 1KB — giảm 60-80% băng thông
+// Phải đặt TRƯỚC static và routes
+app.use(compression({
+  level:     6,       // 1–9 (6 = balance tốt nhất speed/ratio)
+  threshold: 1024,    // bytes — không nén file nhỏ hơn 1KB
+  filter: (req, res) => {
+    // Không nén response đã được nén (ảnh, zip...)
+    if (req.headers['x-no-compression']) return false
+    return compression.filter(req, res)
+  }
 }))
 
-// ── BODY PARSERS ──────────────────────────────────────────
-app.use(express.urlencoded({ extended: true, limit: '1mb' }))
-app.use(express.json({ limit: '1mb' }))
+// ── 2. VIEW ENGINE ────────────────────────────────────────
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+if (process.env.NODE_ENV === 'production') app.enable('view cache')
 
-// ── SESSION ───────────────────────────────────────────────
+// ── 3. STATIC FILES ───────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge:       process.env.NODE_ENV === 'production' ? '7d' : 0,
+  etag:         true,
+  lastModified: true,
+  // Phục vụ pre-compressed nếu có file .gz
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Vary', 'Accept-Encoding')
+    }
+  }
+}))
+
+// ── 4. BODY PARSERS ───────────────────────────────────────
+app.use(express.urlencoded({ extended: true, limit: '2mb' }))
+app.use(express.json({ limit: '2mb' }))
+
+// ── 5. SESSION ────────────────────────────────────────────
+// Lưu ý: khi dùng PM2 cluster, session lưu RAM của từng worker
+// → các worker KHÔNG share session với nhau
+// → cần dùng sticky sessions hoặc external store (Redis) nếu cần
+// → Hiện tại: dùng sticky sessions qua PM2 (cấu hình trong ecosystem.config.js)
 app.use(session({
-  secret:            process.env.SESSION_SECRET || 'fs-secret',
+  secret:            process.env.SESSION_SECRET || 'fruitshop-secret-change-this',
   resave:            false,
   saveUninitialized: false,
   cookie: {
     maxAge:   86400000,  // 24h
     httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production'
+    secure:   process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
   }
 }))
 
-// ── GLOBAL MIDDLEWARE ─────────────────────────────────────
+// ── 6. RATE LIMITING ──────────────────────────────────────
+// Chặn một IP gửi quá nhiều request — bảo vệ khỏi flood/DDoS nhỏ
+const limiter = rateLimit({
+  windowMs: 60 * 1000,   // 1 phút
+  max:      200,         // tối đa 200 req/phút mỗi IP (≈3.3 req/s)
+  standardHeaders: true,
+  legacyHeaders:   false,
+  message: { success: false, message: 'Qua nhieu request, thu lai sau 1 phut' },
+  // Bỏ qua rate limit cho admin (nếu cần)
+  skip: (req) => req.path.startsWith('/admin') && req.session?.role === 'admin'
+})
+
+// Rate limit chặt hơn cho login endpoint (chống brute-force)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 phút
+  max:      20,               // tối đa 20 lần login/15 phút mỗi IP
+  message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut' }
+})
+
+app.use(limiter)
+app.use('/auth/login',  loginLimiter)
+app.use('/admin/login', loginLimiter)
+
+// ── 7. GLOBAL MIDDLEWARE ──────────────────────────────────
 app.use(loadUser)
 
-// ── ROUTES ────────────────────────────────────────────────
+// ── 8. ROUTES ─────────────────────────────────────────────
 app.use('/',      require('./routes/shop'))
 app.use('/auth',  require('./routes/auth'))
 app.use('/',      require('./routes/orders'))
 app.use('/ai',    require('./routes/ai'))
 app.use('/admin', require('./routes/admin'))
 
-// ── 404 ───────────────────────────────────────────────────
+// ── 9. ERROR HANDLERS ─────────────────────────────────────
 app.use((req, res) => res.status(404).render('pages/404', { title: '404' }))
 
-// ── ERROR HANDLER ─────────────────────────────────────────
 app.use((err, req, res, next) => {
-  console.error(err.stack)
-  res.status(500).render('pages/404', { title: 'Loi he thong' })
+  console.error(`[${new Date().toISOString()}] ERROR:`, err.message)
+  if (res.headersSent) return next(err)
+  res.status(500).json({ success: false, message: 'Loi he thong' })
 })
 
+// ── 10. START ─────────────────────────────────────────────
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => {
-  console.log(`\n🍊 FruitShop  → http://localhost:${PORT}`)
+
+// Graceful shutdown — đóng connections trước khi thoát
+const server = app.listen(PORT, () => {
+  const pid = process.pid
+  console.log(`\n🍊 FruitShop  → http://localhost:${PORT}  [pid ${pid}]`)
   console.log(`🔐 Admin      → http://localhost:${PORT}/admin/login`)
-  console.log(`📦 Node env   → ${process.env.NODE_ENV || 'development'}\n`)
+  console.log(`⚡ Node env   → ${process.env.NODE_ENV || 'development'}\n`)
 })
+
+const shutdown = (signal) => {
+  console.log(`\n${signal} received — shutting down gracefully...`)
+  server.close(() => {
+    require('mongoose').connection.close(false, () => {
+      console.log('✅ Connections closed. Bye!')
+      process.exit(0)
+    })
+  })
+  // Force exit nếu quá 10s
+  setTimeout(() => process.exit(1), 10000)
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'))
+process.on('SIGINT',  () => shutdown('SIGINT'))
+
+module.exports = app

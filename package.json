@@ -1,21 +1,28 @@
 {
   "name": "fruitshop",
-  "version": "2.0.0",
-  "description": "FruitShop - Node.js + Pug + MongoDB (optimized)",
+  "version": "3.0.0",
+  "description": "FruitShop — Node.js + Pug + MongoDB (production-ready)",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev":   "nodemon app.js",
-    "seed":  "node data/seed.js"
+    "start": "NODE_ENV=production node app.js",
+    "cluster": "NODE_ENV=production pm2 start ecosystem.config.js",
+    "cluster:log": "pm2 logs fruitshop",
+    "cluster:mon": "pm2 monit",
+    "cluster:stop": "pm2 stop fruitshop",
+    "dev": "nodemon app.js",
+    "seed": "node data/seed.js"
   },
   "dependencies": {
-    "bcryptjs":        "^2.4.3",
-    "dotenv":          "^16.3.1",
-    "express":         "^4.18.2",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cross-env": "^10.1.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
-    "mongoose":        "^8.0.3",
-    "multer":          "^1.4.5-lts.1",
-    "pug":             "^3.0.2"
+    "mongoose": "^8.0.3",
+    "multer": "^1.4.5-lts.1",
+    "pug": "^3.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
