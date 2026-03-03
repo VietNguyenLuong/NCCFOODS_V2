@@ -11,6 +11,7 @@ const requireAdmin = (req, res, next) => {
   res.redirect('/admin/login')
 }
 
+<<<<<<< HEAD
 // Cache user trong req để tránh query DB nhiều lần trong cùng request
 const loadUser = async (req, res, next) => {
   res.locals.currentUser = null
@@ -33,6 +34,19 @@ const loadUser = async (req, res, next) => {
     }
   } catch { /* ignore */ }
 
+=======
+const loadUser = async (req, res, next) => {
+  if (req.session?.userId) {
+    try {
+      const user = await User.findById(req.session.userId).lean()
+      res.locals.currentUser = user
+      res.locals.isAdmin = user?.role === 'admin'
+    } catch { res.locals.currentUser = null }
+  } else {
+    res.locals.currentUser = null
+    res.locals.isAdmin = false
+  }
+>>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
   next()
 }
 
