@@ -45,11 +45,11 @@ exports.getHome = async (req, res) => {
     }
 
     const [featured, categories] = await Promise.all([
-      Product.find({ isActive: true, isFeatured: true })
+      Product.find({ isActive: 1, isFeatured: 1 })
         .populate('category')
         .limit(20)
         .lean(),
-      Category.find({ isActive: true }).lean()
+      Category.find({ isActive: 1 }).lean()
     ])
 
     const data = {
