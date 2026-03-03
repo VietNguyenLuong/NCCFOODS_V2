@@ -4,10 +4,11 @@ const path    = require('path')
 const session = require('express-session')
 const connectDB = require('./config/db')
 const { loadUser } = require('./middleware/auth')
+const compression = require('compression')
 
 const app = express()
 connectDB()
-
+app.use(compression())
 app.set('view engine', 'pug')
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, 'public')))
