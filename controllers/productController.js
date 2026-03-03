@@ -3,8 +3,8 @@ const Category = require('../models/Category')
 
 exports.getHome = async (req, res) => {
   const [featured, categories] = await Promise.all([
-    Product.find({ isActive: true }).populate('category').limit(8).lean(),
-    Category.find({ isActive: true }).lean()
+    Product.find({ isActive: 1 }).populate('category').limit(8).lean(),
+    Category.find({ isActive: 1 }).lean()
   ])
   res.render('pages/home', { title: 'NCCFOODS - Hoa quả tươi ngon', featured, categories })
 }
