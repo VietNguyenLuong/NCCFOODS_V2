@@ -137,7 +137,7 @@ block scripts
     }
 
     function updateSummary(sub) {
-      const ship = sub >= 300000 ? 0 : 30000
+      const ship = sub >= 45000 ? 0 : 4000
       document.getElementById('csSubtotal').textContent = fmt(sub)
       document.getElementById('csShipping').textContent = ship===0 ? 'Miễn phí 🎉' : fmt(ship)
       document.getElementById('csTotal').textContent    = fmt(sub+ship)
@@ -164,7 +164,7 @@ block scripts
       const tbody = document.getElementById('orderTableBody')
       let rows = '', txt = 'DON HANG FRUITSHOP\n========================\n'
       const sub  = cart.reduce((s,i) => s+i.price*i.qty, 0)
-      const ship = sub >= 300000 ? 0 : 30000
+      const ship = sub >= 45000 ? 0 : 4000
       cart.forEach(i => {
         rows += '<tr><td>' + i.emoji + ' ' +removeVietnameseTones(i.name) + '</td><td>' + i.qty + '</td><td>' + fmt(i.price) + '</td><td>' + fmt(i.price*i.qty) + '</td></tr>'
         txt  += removeVietnameseTones(i.name) + ' x' + i.qty + ' = ' + (i.price*i.qty/1000).toFixed(0) + '.000W\n'

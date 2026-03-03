@@ -649,9 +649,12 @@ input, textarea, select { font-family: var(--font-body); }
 .spin { animation: spinAnim 1s linear infinite; display: inline-block; }
 @keyframes spinAnim { to { transform: rotate(360deg); } }
 .nav-user-mobile {display: none;}
+.btn-cart{display: none;}
+.btn-outline{display: flex;}
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
   .nav-user-mobile {display: none;}
+  .btn-cart{display: none;}
   .products-grid { grid-template-columns: repeat(3,1fr); }
   .why-grid      { grid-template-columns: repeat(2,1fr); }
   .mood-grid     { grid-template-columns: repeat(3,1fr); }
@@ -678,6 +681,9 @@ input, textarea, select { font-family: var(--font-body); }
   .form-row  { grid-template-columns: 1fr; }
   .nav-user {display: none;}
   .btn-logout{display: none;}
+  .btn-asign{display: none;}
+  .btn-cart{display: flex;}
+  .btn-outline{display: none;}
    .nav-user-mobile {
   position: relative;
   display: inline-block;
