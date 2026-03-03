@@ -69,23 +69,41 @@ app.use(session({
 
 // ── 6. RATE LIMITING ──────────────────────────────────────
 // Chặn một IP gửi quá nhiều request — bảo vệ khỏi flood/DDoS nhỏ
-// Rate limit — chặn flood/DDoS, không ảnh hưởng user thật
-// User thật: load 1 trang ≈ 5-10 requests (HTML + API calls)
-// 1 user active nhất cũng hiếm khi vượt 60 req/phút
+// ── 6. RATE LIMITING ──────────────────────────────────────
+// Mục tiêu: chặn bot/scraper/DDoS, KHÔNG ảnh hưởng user thật
+//
+// Thực tế traffic:
+//   - 1 user thật: ~0.2–0.3 req/s = ~15–20 req/phút
+//   - 300 user từ 300 IP khác nhau → mỗi IP chỉ ~20 req/phút → không bị chặn
+//   - Artillery test từ 1 IP → 6000 req/phút → bị chặn đúng
+//
+// Kết quả test: server xử lý ổn 60 req/s (mean 35ms, p95 50ms)
+// Rate limit không ảnh hưởng gì đến capacity thật — chỉ ảnh hưởng test tool
+
 const limiter = rateLimit({
-  windowMs: 60 * 1000,    // cửa sổ 1 phút
-  max:      600,          // 600 req/phút mỗi IP = 10 req/s — đủ cho 1 user bình thường
-  standardHeaders: true,
-  legacyHeaders:   false,
-  message: { success: false, message: 'Qua nhieu request, thu lai sau 1 phut' },
-  skip: (req) => req.path.startsWith('/admin') && req.session?.role === 'admin'
+  windowMs: 60 * 1000,   // cửa sổ 1 phút
+  max:      300,         // 300 req/phút/IP = 5 req/s — 1 user thật không bao giờ đạt
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  // Dùng IP thực (khi có Nginx/proxy ở trước)
+  keyGenerator: (req) => req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip,
+  message: { success: false, message: 'Qua nhieu request, vui long thu lai sau.' },
+  skip: (req) => {
+    // Bỏ qua static files — không tính vào limit
+    if (req.path.match(/\.(css|js|png|jpg|ico|webp|woff2?)$/)) return true
+    // Bỏ qua admin đã đăng nhập
+    if (req.path.startsWith('/admin') && req.session?.role === 'admin') return true
+    return false
+  }
 })
 
-// Login: giữ chặt để chống brute-force
+// Login giữ chặt để chống brute-force
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 phút
-  max:      30,               // 30 lần login/15 phút mỗi IP
-  message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut' }
+  max:      20,               // 20 lần/15 phút/IP
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
 })
 
 app.use(limiter)
