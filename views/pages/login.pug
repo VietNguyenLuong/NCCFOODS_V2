@@ -2,13 +2,8 @@ extends ../layout
 block content
   .auth-page
     .auth-card
-<<<<<<< HEAD
       p.auth-logo 🍊 FruitShop
       p.auth-sub Dang nhap de mua hang
-=======
-      p.auth-logo 🍊 NCCFOODS
-      p.auth-sub Đăng nhập để mua hàng
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
       if flash
         p.auth-success= flash
       if error
@@ -18,14 +13,7 @@ block content
           label Email
           input(type="email" name="email" placeholder="email@example.com" required autofocus)
         div
-<<<<<<< HEAD
           label Mat khau
           input(type="password" name="password" placeholder="••••••••" required)
         button.btn.btn-primary.btn-block(type="submit") Dang nhap →
       p.auth-switch Chua co tai khoan? #[a(href="/auth/register") Dang ky ngay]
-=======
-          label Mật khẩu
-          input(type="password" name="password" placeholder="••••••••" required)
-        button.btn.btn-primary.btn-block(type="submit") Đăng nhập →
-      p.auth-switch Chưa có tài khoản? #[a(href="/auth/register") Đăng ký ngay]
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c

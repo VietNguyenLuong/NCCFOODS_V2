@@ -648,19 +648,9 @@ input, textarea, select { font-family: var(--font-body); }
 /* ── SPINNER ── */
 .spin { animation: spinAnim 1s linear infinite; display: inline-block; }
 @keyframes spinAnim { to { transform: rotate(360deg); } }
-<<<<<<< HEAD
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1024px) {
-=======
-.nav-user-mobile {display: none;}
-.btn-cart{display: none;}
-.btn-outline{display: flex;}
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-  .nav-user-mobile {display: none;}
-  .btn-cart{display: none;}
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
   .products-grid { grid-template-columns: repeat(3,1fr); }
   .why-grid      { grid-template-columns: repeat(2,1fr); }
   .mood-grid     { grid-template-columns: repeat(3,1fr); }
@@ -685,61 +675,6 @@ input, textarea, select { font-family: var(--font-body); }
   .mood-grid { grid-template-columns: repeat(3,1fr); }
   .chat-win  { width: calc(100vw - 32px); left: 16px; }
   .form-row  { grid-template-columns: 1fr; }
-<<<<<<< HEAD
-=======
-  .nav-user {display: none;}
-  .btn-logout{display: none;}
-  .btn-asign{display: none;}
-  .btn-cart{display: flex;}
-  .btn-outline{display: none;}
-   .nav-user-mobile {
-  position: relative;
-  display: inline-block;
-}
-
-.nav-user-mobile-dropdown {
-  position: absolute;
-  right: 0;
-  top: 40px;
-  background: #fff;
-  border-radius: 10px;
-  padding: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  min-width: 180px;
-}
-
-.nav-user-mobile-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.nav-user-mobile-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #2e7d32;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-.nav-user-mobile-toggle {border: none;}
-.nav-user-mobile-logout {
-  display: block;
-  padding: 8px 0;
-  text-decoration: none;
-  color: #d32f2f;
-  font-weight: 500;
-}
-
-.nav-user-mobile-logout:hover {
-  opacity: 0.7;
-}
-.product-price .price {font-size: 1rem;}
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
 }
 
 /* ── PRODUCT DETAIL IMAGE ── */

@@ -2,28 +2,18 @@ extends ../layout
 block content
   .auth-page
     .auth-card
-<<<<<<< HEAD
       p.auth-logo 🍊 FruitShop
       p.auth-sub Tao tai khoan moi
-=======
-      p.auth-logo 🍊 NCCFOODS
-      p.auth-sub Tạo tài khoản mới
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
       if error
         p.auth-error= error
       form.auth-form(method="POST" action="/auth/register")
         div
-<<<<<<< HEAD
           label Ho va ten *
-=======
-          label Họ và tên *
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
           input(type="text" name="name" placeholder="Nguyen Van A" required)
         div
           label Email *
           input(type="email" name="email" placeholder="email@example.com" required)
         div
-<<<<<<< HEAD
           label Mat khau *
           input(type="password" name="password" placeholder="Toi thieu 6 ky tu" required minlength="6")
         div
@@ -31,12 +21,3 @@ block content
           input(type="tel" name="phone" placeholder="0912 345 678")
         button.btn.btn-primary.btn-block(type="submit") Dang ky →
       p.auth-switch Da co tai khoan? #[a(href="/auth/login") Dang nhap]
-=======
-          label Mật khẩu *
-          input(type="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6")
-        div
-          label Số điện thoại
-          input(type="tel" name="phone" placeholder="0912 345 678")
-        button.btn.btn-primary.btn-block(type="submit") Đăng ký →
-      p.auth-switch Đã có tài khoản? #[a(href="/auth/login") Đăng nhập]
->>>>>>> cd9bc7445ababde8cfe5703f8775c41cd21cc98c
