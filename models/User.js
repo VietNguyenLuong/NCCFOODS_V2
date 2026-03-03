@@ -19,5 +19,7 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.matchPassword = function(plain) {
   return bcrypt.compare(plain, this.password)
 }
-
+/* INDEX */
+userSchema.index({ email: 1 })
+userSchema.index({ role: 1, isActive: 1 })
 module.exports = mongoose.model('User', userSchema)

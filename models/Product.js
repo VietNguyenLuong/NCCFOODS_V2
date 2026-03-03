@@ -22,4 +22,6 @@ const productSchema = new mongoose.Schema({
   isActive:    { type: Boolean, default: true }
 }, { timestamps: true })
 
+productSchema.index({ category: 1, isActive: 1 })
+productSchema.index({ slug: 1 })
 module.exports = mongoose.model('Product', productSchema)

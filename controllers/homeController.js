@@ -4,8 +4,8 @@ const Category = require('../models/Category')
 exports.getHome = async (req, res) => {
   try {
     const [featured, categories] = await Promise.all([
-      Product.find({ isActive: true, isFeatured: true }).populate('category').limit(20).lean(),
-      Category.find({ isActive: true })
+      Product.find({ isActive: 1, isFeatured: 1 }).populate('category').limit(20).lean(),
+      Category.find({ isActive: 1 })
     ])
     const moods = [
       { emoji: '⚡', label: 'Nang luong'   },

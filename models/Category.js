@@ -6,4 +6,7 @@ const categorySchema = new mongoose.Schema({
   description: { type: String, default: '' },
   isActive:    { type: Boolean, default: true }
 }, { timestamps: true })
+/* INDEX */
+categorySchema.index({ isActive: 1 })
+categorySchema.index({ slug: 1 })
 module.exports = mongoose.model('Category', categorySchema)
