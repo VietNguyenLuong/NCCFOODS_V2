@@ -2,6 +2,7 @@ require('dotenv').config()
 const express      = require('express')
 const path         = require('path')
 const session      = require('express-session')
+const MemoryStore  = require('memorystore')(session)
 const compression  = require('compression')
 const rateLimit    = require('express-rate-limit')
 const connectDB    = require('./config/db')
@@ -54,8 +55,12 @@ app.use(session({
   secret:            process.env.SESSION_SECRET || 'fruitshop-secret-change-this',
   resave:            false,
   saveUninitialized: false,
+  // MemoryStore với TTL — không leak memory như default store
+  // Lưu ý: mỗi PM2 worker có store riêng (không share)
+  // Dùng sticky sessions trong PM2 để user luôn vào đúng worker
+  store: new MemoryStore({ checkPeriod: 86400000 }),  // dọn session hết hạn mỗi 24h
   cookie: {
-    maxAge:   86400000,  // 24h
+    maxAge:   86400000,
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
     sameSite: 'lax'
@@ -64,20 +69,22 @@ app.use(session({
 
 // ── 6. RATE LIMITING ──────────────────────────────────────
 // Chặn một IP gửi quá nhiều request — bảo vệ khỏi flood/DDoS nhỏ
+// Rate limit — chặn flood/DDoS, không ảnh hưởng user thật
+// User thật: load 1 trang ≈ 5-10 requests (HTML + API calls)
+// 1 user active nhất cũng hiếm khi vượt 60 req/phút
 const limiter = rateLimit({
-  windowMs: 60 * 1000,   // 1 phút
-  max:      200,         // tối đa 200 req/phút mỗi IP (≈3.3 req/s)
+  windowMs: 60 * 1000,    // cửa sổ 1 phút
+  max:      600,          // 600 req/phút mỗi IP = 10 req/s — đủ cho 1 user bình thường
   standardHeaders: true,
   legacyHeaders:   false,
   message: { success: false, message: 'Qua nhieu request, thu lai sau 1 phut' },
-  // Bỏ qua rate limit cho admin (nếu cần)
   skip: (req) => req.path.startsWith('/admin') && req.session?.role === 'admin'
 })
 
-// Rate limit chặt hơn cho login endpoint (chống brute-force)
+// Login: giữ chặt để chống brute-force
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 phút
-  max:      20,               // tối đa 20 lần login/15 phút mỗi IP
+  max:      30,               // 30 lần login/15 phút mỗi IP
   message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut' }
 })
 
