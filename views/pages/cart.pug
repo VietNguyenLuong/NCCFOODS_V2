@@ -1,0 +1,229 @@
+extends ../layout
+
+block content
+  .page-hero
+    .container
+      span.section-label
+      h1.page-title 🛒 Gio hang
+
+  section.section
+    .container
+      .cart-layout
+        .cart-list#cartList
+          .cart-empty#cartEmpty(style="display:none;text-align:center;padding:60px 0")
+            p(style="font-size:56px;margin-bottom:12px") 🛒
+            p(style="color:var(--slate);margin-bottom:20px") Gio hang cua ban dang trong
+            a.btn.btn-primary(href="/products") Mua sam ngay
+
+        .cart-summary-card
+          p.cs-title Tom tat don hang
+          .cs-row
+            span Tam tinh
+            span#csSubtotal 0d
+          .cs-row
+            span Phi giao hang
+            span#csShipping 30.000d
+          .cs-row.cs-total
+            span Tong cong
+            span#csTotal 0d
+          button.btn.btn-primary.btn-block#btnCheckout(style="margin-top:16px") Thanh toan →
+          p(style="font-size:.75rem;color:var(--slate);text-align:center;margin-top:10px") 🔒 Thanh toan an toan
+
+  //- CHECKOUT OVERLAY
+  .checkout-overlay#checkoutOverlay
+    .checkout-modal
+      .checkout-head
+        h2 Xac nhan don hang 🌿
+        button.co-close#coClose ✕
+
+      form.checkout-body#checkoutForm(enctype="multipart/form-data")
+
+        div
+          p.co-section-title 📋 Thong tin nguoi nhan
+          .form-row
+            .form-group
+              label Ho va ten *
+              input#coName(type="text" name="customerName" placeholder="Nguyen Van A" required)
+            .form-group
+              label So dien thoai *
+              input#coPhone(type="tel" name="phone" placeholder="0912 345 678" required)
+          .form-group
+            label Dia chi giao hang *
+            input#coAddress(type="text" name="address" placeholder="So nha, duong, quan, tinh..." required)
+
+        div
+          p.co-section-title 🧾 Chi tiet don hang
+          .order-table-wrap
+            table.order-table
+              thead
+                tr
+                  th San pham
+                  th SL
+                  th Don gia
+                  th Thanh tien
+              tbody#orderTableBody
+              tfoot
+                tr
+                  td(colspan="3") Phi giao hang
+                  td#tfShipping 30.000d
+                tr.total-row
+                  td(colspan="3") TONG CONG
+                  td#tfTotal 0d
+          .form-group(style="margin-top:14px")
+            label Chi tiet (tu dong tao - khong can dau)
+            textarea#orderSummaryText(name="orderSummary" readonly)
+
+        div
+          p.co-section-title 💳 Bill chuyen khoan (bat buoc)
+          .bill-upload#billUploadArea
+            span.bill-upload-icon 📎
+            p.bill-upload-text Nhap anh bill chuyen khoan
+            p.bill-upload-hint JPG, PNG · toi da 5MB · Bat buoc
+            input#billFile(type="file" name="billImage" accept="image/*" required)
+          .bill-preview#billPreview
+            img#billImg(src="" alt="preview")
+            button.bill-rm#billRm(type="button") ✕
+
+        .co-actions
+          button.btn.btn-ghost(type="button" id="coBack") ← Quay lai
+          button.btn.btn-primary(type="submit" id="coSubmit")
+            span#submitLabel 🛒 Xac nhan dat hang
+            span.spin#submitSpin(style="display:none") ⏳
+
+  //- SUCCESS
+  .success-overlay#successOverlay
+    .success-modal
+      span.success-icon 🎉
+      h2.success-title Dat hang thanh cong!
+      p.success-desc Don hang da duoc tiep nhan. Chung toi se lien he xac nhan trong 30 phut.
+      p.success-code#successCode
+      .success-acts
+        a.btn.btn-primary(href="/products") Tiep tuc mua
+        a.btn.btn-ghost(href="/") Ve trang chu
+
+block scripts
+  script.
+    function fmt(n) { return (n/1000).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g,'.') + '.000d' }
+
+    function renderCart() {
+      const cart = JSON.parse(localStorage.getItem('fs-cart') || '[]')
+      const list = document.getElementById('cartList')
+      const empty = document.getElementById('cartEmpty')
+      if (!cart.length) { empty.style.display='block'; updateSummary(0); return }
+      empty.style.display='none'
+      let html = ''
+      cart.forEach((item, i) => {
+        html += '<div class="cart-item"><span class="cart-emoji">' + item.emoji + '</span>'
+          + '<div class="cart-info"><p class="cart-name">' + item.name + (item.variant ? ' <span style="background:rgba(0,137,123,.1);color:var(--jade);font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:4px">' + item.variant + '</span>' : '') + '</p>'
+          + '<p class="cart-price">' + fmt(item.price) + ' / don vi</p></div>'
+          + '<div class="cart-qty">'
+          + '<button class="qty-btn" onclick="changeQty(' + i + ',-1)">-</button>'
+          + '<span>' + item.qty + '</span>'
+          + '<button class="qty-btn" onclick="changeQty(' + i + ',1)">+</button></div>'
+          + '<span class="cart-total">' + fmt(item.price * item.qty) + '</span>'
+          + '<button class="rm-btn" onclick="rmItem(' + i + ')">✕</button></div>'
+      })
+      list.innerHTML = html + empty.outerHTML
+      updateSummary(cart.reduce((s,i) => s + i.price*i.qty, 0))
+      updateCartCount()
+    }
+
+    function updateSummary(sub) {
+      const ship = sub >= 300000 ? 0 : 30000
+      document.getElementById('csSubtotal').textContent = fmt(sub)
+      document.getElementById('csShipping').textContent = ship===0 ? 'Mien phi 🎉' : fmt(ship)
+      document.getElementById('csTotal').textContent    = fmt(sub+ship)
+    }
+
+    function changeQty(i, d) {
+      const c = JSON.parse(localStorage.getItem('fs-cart')||'[]')
+      c[i].qty = Math.max(1, c[i].qty+d)
+      localStorage.setItem('fs-cart', JSON.stringify(c)); renderCart()
+    }
+    function rmItem(i) {
+      const c = JSON.parse(localStorage.getItem('fs-cart')||'[]'); c.splice(i,1)
+      localStorage.setItem('fs-cart', JSON.stringify(c)); renderCart()
+    }
+
+    renderCart()
+
+    // Open checkout
+    document.getElementById('btnCheckout').addEventListener('click', () => {
+      const cart = JSON.parse(localStorage.getItem('fs-cart')||'[]')
+      if (!cart.length) { alert('Gio hang dang trong!'); return }
+
+      // Build table rows
+      const tbody = document.getElementById('orderTableBody')
+      let rows = '', txt = 'DON HANG FRUITSHOP\n========================\n'
+      const sub  = cart.reduce((s,i) => s+i.price*i.qty, 0)
+      const ship = sub >= 300000 ? 0 : 30000
+      cart.forEach(i => {
+        rows += '<tr><td>' + i.emoji + ' ' + i.name + '</td><td>' + i.qty + '</td><td>' + fmt(i.price) + '</td><td>' + fmt(i.price*i.qty) + '</td></tr>'
+        txt  += i.name + ' x' + i.qty + ' = ' + (i.price*i.qty/1000).toFixed(0) + '.000d\n'
+      })
+      txt += '------------------------\n'
+      txt += 'Ship: ' + (ship===0?'Mien phi':(ship/1000).toFixed(0)+'.000d') + '\n'
+      txt += 'TONG: ' + ((sub+ship)/1000).toFixed(0) + '.000d'
+
+      tbody.innerHTML = rows
+      document.getElementById('tfShipping').textContent = ship===0?'Mien phi':fmt(ship)
+      document.getElementById('tfTotal').textContent    = fmt(sub+ship)
+      document.getElementById('orderSummaryText').value = txt
+
+      document.getElementById('checkoutOverlay').classList.add('open')
+      document.body.style.overflow = 'hidden'
+    })
+
+    function closeCheckout() {
+      document.getElementById('checkoutOverlay').classList.remove('open')
+      document.body.style.overflow = ''
+    }
+    document.getElementById('coClose').onclick = closeCheckout
+    document.getElementById('coBack').onclick  = closeCheckout
+    document.getElementById('checkoutOverlay').addEventListener('click', e => { if(e.target.id==='checkoutOverlay') closeCheckout() })
+
+    // Bill preview
+    document.getElementById('billFile').addEventListener('change', function() {
+      const f = this.files[0]; if(!f) return
+      const r = new FileReader()
+      r.onload = e => {
+        document.getElementById('billImg').src = e.target.result
+        document.getElementById('billUploadArea').style.display = 'none'
+        document.getElementById('billPreview').style.display = 'block'
+      }
+      r.readAsDataURL(f)
+    })
+    document.getElementById('billRm').onclick = () => {
+      document.getElementById('billFile').value = ''
+      document.getElementById('billUploadArea').style.display = 'block'
+      document.getElementById('billPreview').style.display = 'none'
+    }
+
+    // Submit
+    document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+      e.preventDefault()
+      const btn = document.getElementById('coSubmit')
+      document.getElementById('submitLabel').style.display = 'none'
+      document.getElementById('submitSpin').style.display = 'inline'
+      btn.disabled = true
+
+      const fd = new FormData(this)
+      fd.append('cartData', localStorage.getItem('fs-cart')||'[]')
+
+      try {
+        const res  = await fetch('/orders/create', { method:'POST', body: fd })
+        const data = await res.json()
+        if (data.success) {
+          closeCheckout()
+          localStorage.removeItem('fs-cart')
+          updateCartCount()
+          document.getElementById('successCode').textContent = 'Ma don: ' + data.orderId
+          document.getElementById('successOverlay').classList.add('show')
+        } else { alert(data.message || 'Co loi xay ra!') }
+      } catch { alert('Loi ket noi!') }
+      finally {
+        document.getElementById('submitLabel').style.display = 'inline'
+        document.getElementById('submitSpin').style.display = 'none'
+        btn.disabled = false
+      }
+    })

@@ -1,0 +1,19 @@
+extends ../layout
+block content
+  .auth-page
+    .auth-card
+      p.auth-logo 🍊 FruitShop
+      p.auth-sub Dang nhap de mua hang
+      if flash
+        p.auth-success= flash
+      if error
+        p.auth-error= error
+      form.auth-form(method="POST" action="/auth/login")
+        div
+          label Email
+          input(type="email" name="email" placeholder="email@example.com" required autofocus)
+        div
+          label Mat khau
+          input(type="password" name="password" placeholder="••••••••" required)
+        button.btn.btn-primary.btn-block(type="submit") Dang nhap →
+      p.auth-switch Chua co tai khoan? #[a(href="/auth/register") Dang ky ngay]

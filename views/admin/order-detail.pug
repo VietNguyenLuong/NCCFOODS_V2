@@ -1,0 +1,103 @@
+extends layout
+block content
+  - const cp = order.status==='pending'?'pending':order.status==='confirmed'?'confirmed':'shipped'
+  - const currentPage = cp
+
+  a.back-link(href="javascript:history.back()") ← Quay lai
+
+  .p-acts
+    p.p-acts-title Don hang #{order.orderCode}
+    span.s-badge(class='s-'+order.status)= order.status
+
+  .d-grid
+    .d-card
+      p.d-card-title Thong tin khach hang
+      .d-field
+        p.d-lbl Ho va ten
+        p.d-val= order.customerName
+      .d-field
+        p.d-lbl SDT
+        p.d-val= order.phone
+      .d-field
+        p.d-lbl Dia chi
+        p.d-val= order.address
+      .d-field
+        p.d-lbl Ngay dat
+        p.d-val= new Date(order.createdAt).toLocaleString('vi-VN')
+    .d-card
+      p.d-card-title Thong tin don hang
+      .d-field
+        p.d-lbl Tam tinh
+        p.d-val= (order.subtotal/1000).toFixed(0) + '.000d'
+      .d-field
+        p.d-lbl Phi giao hang
+        p.d-val= order.shipping===0?'Mien phi':(order.shipping/1000).toFixed(0)+'.000d'
+      .d-field
+        p.d-lbl Tong cong
+        p.d-val(style="font-size:1.2rem;font-weight:900;color:var(--jade)") #{(order.total/1000).toFixed(0)}.000d
+      if order.confirmedAt
+        .d-field
+          p.d-lbl Xac nhan luc
+          p.d-val= new Date(order.confirmedAt).toLocaleString('vi-VN')
+
+  .bill-box
+    p.d-card-title(style="margin-bottom:12px") Bill chuyen khoan
+    if order.billImage
+      img(src=order.billImage alt="Bill")
+    else
+      p(style="color:var(--muted);font-size:.85rem") Chua co bill
+
+  .tbl-wrap(style="margin-bottom:24px")
+    .tbl-head: span.tbl-head-title San pham trong don
+    table.a-table
+      thead
+        tr
+          th San pham
+          th Don gia
+          th So luong
+          th Thanh tien
+      tbody
+        each item in order.items
+          tr
+            td= item.emoji + ' ' + item.name
+            td= (item.price/1000).toFixed(0) + '.000d'
+            td= item.qty
+            td= (item.price*item.qty/1000).toFixed(0) + '.000d'
+
+  if order.orderSummary
+    .d-card(style="margin-bottom:24px")
+      p.d-card-title Chi tiet don (van ban)
+      pre(style="font-size:.78rem;line-height:1.65;color:var(--slate);white-space:pre-wrap")= order.orderSummary
+
+  div(style="display:flex;gap:12px;flex-wrap:wrap")
+    if order.status==='pending'
+      button.a-btn-add#btnConfirm Xac nhan don hang
+    if order.status==='confirmed'
+      button.a-btn-add#btnShip(style="background:linear-gradient(135deg,#52C41A,#2E7D32)") Da dong goi - Gui hang
+      button.a-btn.a-btn-cancel(style="padding:11px 22px;border-radius:10px" id="btnCancel") Huy don hang
+    if order.status==='shipped'
+      button.a-btn.a-btn-restore(style="padding:11px 22px;border-radius:10px" id="btnRestore") Khoi phuc
+
+block scripts
+  script.
+    const OID = '!{order._id}'
+    document.getElementById('btnConfirm')?.addEventListener('click',async()=>{
+      if(!confirm('Xac nhan don hang?'))return
+      const r=await api('/admin/orders/'+OID+'/confirm',{})
+      if(r.success){atoast('Da xac nhan!','ok');setTimeout(()=>location.reload(),700)}
+    })
+    document.getElementById('btnShip')?.addEventListener('click',async()=>{
+      if(!confirm('Xac nhan da dong goi va gui hang?'))return
+      const r=await api('/admin/orders/'+OID+'/ship',{})
+      if(r.success){atoast('Da gui hang!','ok');setTimeout(()=>location.reload(),700)}
+    })
+    document.getElementById('btnCancel')?.addEventListener('click',async()=>{
+      if(!confirm('Huy don hang?'))return
+      const r=await api('/admin/orders/'+OID+'/cancel',{})
+      if(r.success){atoast('Da huy!','ok');setTimeout(()=>location.reload(),700)}
+    })
+    document.getElementById('btnRestore')?.addEventListener('click',async()=>{
+      if(!confirm('Khoi phuc don hang?'))return
+      const r=await api('/admin/orders/'+OID+'/restore',{})
+      if(r.success){atoast('Da khoi phuc!','ok');setTimeout(()=>location.reload(),700)}
+    })

@@ -1,0 +1,366 @@
+extends layout
+
+block content
+  - const currentPage = 'products'
+
+  .p-acts
+    p.p-acts-title Danh sach san pham
+    button.a-btn-add#btnAdd + Them san pham
+
+  form.date-filter(method="GET" action="/admin/products" style="margin-bottom:22px;flex-wrap:wrap")
+    input(type="text" name="q" value=q placeholder="Tim theo ten..." style="padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:.84rem;outline:none;background:var(--surface);color:var(--ink);min-width:200px")
+    select(name="cat" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:.84rem;outline:none;background:var(--surface);color:var(--ink)")
+      option(value="") Tat ca danh muc
+      each c in categories
+        option(value=c._id selected=(cat===c._id.toString())) #{c.emoji} #{c.name}
+    select(name="status" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;font-size:.84rem;outline:none;background:var(--surface);color:var(--ink)")
+      option(value="") Tat ca trang thai
+      option(value="active"   selected=(status==='active'))   Dang ban
+      option(value="inactive" selected=(status==='inactive')) Da an
+    button(type="submit") Tim kiem
+    if q || cat || status
+      a.a-btn.a-btn-cancel(href="/admin/products" style="padding:9px 16px;border-radius:9px") Xoa bo loc
+
+  .tbl-wrap
+    if products.length
+      table.a-table
+        thead
+          tr
+            th(style="width:72px") Anh
+            th Ten san pham
+            th Danh muc
+            th Gia / Bien the
+            th Don vi / Xuat xu
+            th Badge
+            th Trang thai
+            th(style="width:160px") Thao tac
+        tbody
+          each p in products
+            tr
+              td(style="padding:10px 14px")
+                if p.image
+                  img(src=p.image alt=p.name style="width:48px;height:48px;object-fit:cover;border-radius:10px;border:1.5px solid var(--border)")
+                else
+                  div(style="width:48px;height:48px;background:var(--surface2);border-radius:10px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.5rem") #{p.emoji || '🍎'}
+              td
+                strong(style="color:var(--ink);display:block") #{p.name}
+                code(style="font-size:.65rem;color:var(--muted)") #{p.slug}
+              td(style="font-size:.82rem")
+                if p.category
+                  | #{p.category.emoji} #{p.category.name}
+                else
+                  span(style="color:var(--muted)") --
+              td
+                if p.variants && p.variants.length
+                  div(style="display:flex;flex-direction:column;gap:3px")
+                    each v in p.variants.slice(0,3)
+                      span(style="font-size:.75rem;background:rgba(0,137,123,.08);color:var(--jade);padding:2px 8px;border-radius:6px;display:inline-block;white-space:nowrap")
+                        | #{v.label}: #{(v.price/1000).toFixed(0)}.000d
+                    if p.variants.length > 3
+                      span(style="font-size:.72rem;color:var(--muted)") +#{p.variants.length - 3} loai nua
+                else
+                  span(style="font-weight:700;color:var(--jade)") #{(p.price/1000).toFixed(0)}.000d
+              td(style="font-size:.8rem;color:var(--slate)")
+                | #{p.unit || 'kg'}
+                br
+                | #{p.origin || '--'}
+              td
+                if p.badge
+                  span.s-badge(class=p.badge==='hot'?'s-cancelled':p.badge==='new'?'s-shipped':'s-confirmed') #{p.badge.toUpperCase()}
+                else
+                  span(style="color:var(--muted);font-size:.78rem") --
+              td
+                button.toggle-btn(
+                  onclick="toggleStatus('" + p._id + "', this)"
+                  data-active=(p.isActive ? 'true' : 'false')
+                )= p.isActive ? 'Dang ban' : 'Da an'
+              td(style="display:flex;gap:6px;flex-wrap:wrap")
+                button.a-btn.a-btn-edit(
+                  onclick="openEdit(this)"
+                  data-id=(p._id.toString())
+                  data-name=p.name
+                  data-emoji=(p.emoji || '')
+                  data-price=p.price
+                  data-unit=(p.unit || 'kg')
+                  data-origin=(p.origin || '')
+                  data-category=(p.category ? p.category._id.toString() : '')
+                  data-badge=(p.badge || '')
+                  data-active=(p.isActive ? 'true' : 'false')
+                  data-description=(p.description || '')
+                  data-image=(p.image || '')
+                  data-variants=JSON.stringify(p.variants || [])
+                ) Sua
+                button.a-btn.a-btn-delete(onclick="del('" + p._id + "')") Xoa
+    else
+      .empty-state
+        span.es-icon 🍎
+        p Chua co san pham nao
+
+  //- ══════════════════════════════════════════
+  //- MODAL THEM
+  //- ══════════════════════════════════════════
+  .m-overlay#mAdd
+    .modal(style="max-width:620px;max-height:90vh;overflow-y:auto")
+      p.m-title Them san pham moi
+
+      form.m-form#fAdd(enctype="multipart/form-data")
+
+        .img-upload-zone#addUploadZone(onclick="document.getElementById('addImgFile').click()")
+          img#addImgPreview(src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px")
+          .img-upload-placeholder#addPlaceholder
+            span(style="font-size:32px") 📷
+            p(style="font-weight:700;font-size:.85rem;color:var(--ink);margin:4px 0 2px") Tai anh san pham
+            p(style="font-size:.72rem;color:var(--muted)") JPG, PNG, WEBP · Max 5MB
+        input#addImgFile(type="file" name="image" accept="image/*" style="display:none")
+
+        div(style="display:grid;grid-template-columns:72px 1fr;gap:12px")
+          div
+            label Emoji
+            input(type="text" name="emoji" placeholder="🍎" maxlength="4" style="font-size:1.3rem;text-align:center")
+          div
+            label Ten san pham *
+            input(type="text" name="name" required placeholder="VD: Xoai Cat Hoa Loc")
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Gia co ban (VND)
+            input(type="number" name="price" min="0" placeholder="0 (neu dung bien the)")
+          div
+            label Don vi
+            input(type="text" name="unit" placeholder="kg, hop, qua..." value="kg")
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Xuat xu
+            input(type="text" name="origin" placeholder="VD: Dong Thap")
+          div
+            label Danh muc
+            select(name="category")
+              option(value="") -- Chon danh muc --
+              each c in categories
+                option(value=c._id) #{c.emoji} #{c.name}
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Badge
+            select(name="badge")
+              option(value="") Khong co
+              option(value="new") NEW
+              option(value="hot") HOT
+              option(value="sale") SALE
+          div
+            label Trang thai
+            select(name="isActive")
+              option(value="true") Dang ban
+              option(value="false") An di
+        div
+          label Mo ta
+          input(type="text" name="description" placeholder="Mo ta ngan ve san pham")
+
+        //- VARIANTS BLOCK
+        .variants-block#addVariantsBlock
+          .variants-header
+            span.variants-title 🏷 Bien the san pham
+            span.variants-sub (size, khoi luong, huong vi...)
+            button.add-variant-btn(type="button" onclick="addVariantRow('addVariantsList')") + Them bien the
+          .variants-list#addVariantsList
+          .variants-hint Neu co bien the, khach hang se chon size/loai va gia tu dong thay doi.
+
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mAdd')") Huy
+          button.m-ok(type="submit") Luu san pham
+
+  //- ══════════════════════════════════════════
+  //- MODAL SUA
+  //- ══════════════════════════════════════════
+  .m-overlay#mEdit
+    .modal(style="max-width:620px;max-height:90vh;overflow-y:auto")
+      p.m-title Chinh sua san pham
+
+      form.m-form#fEdit(enctype="multipart/form-data")
+        input(type="hidden" name="id" id="eId")
+
+        .img-upload-zone#editUploadZone(onclick="document.getElementById('editImgFile').click()")
+          img#editImgPreview(src="" alt="" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px")
+          .img-upload-placeholder#editPlaceholder
+            span(style="font-size:32px") 📷
+            p(style="font-weight:700;font-size:.85rem;color:var(--ink);margin:4px 0 2px") Tai anh moi
+            p(style="font-size:.72rem;color:var(--muted)") De trong neu giu anh cu
+        input#editImgFile(type="file" name="image" accept="image/*" style="display:none")
+
+        div(style="display:grid;grid-template-columns:72px 1fr;gap:12px")
+          div
+            label Emoji
+            input#eEmoji(type="text" name="emoji" maxlength="4" style="font-size:1.3rem;text-align:center")
+          div
+            label Ten san pham *
+            input#eName(type="text" name="name" required)
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Gia co ban (VND)
+            input#ePrice(type="number" name="price" min="0")
+          div
+            label Don vi
+            input#eUnit(type="text" name="unit")
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Xuat xu
+            input#eOrigin(type="text" name="origin")
+          div
+            label Danh muc
+            select#eCat(name="category")
+              option(value="") -- Chon danh muc --
+              each c in categories
+                option(value=c._id) #{c.emoji} #{c.name}
+        div(style="display:grid;grid-template-columns:1fr 1fr;gap:12px")
+          div
+            label Badge
+            select#eBadge(name="badge")
+              option(value="") Khong co
+              option(value="new") NEW
+              option(value="hot") HOT
+              option(value="sale") SALE
+          div
+            label Trang thai
+            select#eActive(name="isActive")
+              option(value="true") Dang ban
+              option(value="false") An di
+        div
+          label Mo ta
+          input#eDesc(type="text" name="description")
+
+        .variants-block#editVariantsBlock
+          .variants-header
+            span.variants-title 🏷 Bien the san pham
+            span.variants-sub (size, khoi luong, huong vi...)
+            button.add-variant-btn(type="button" onclick="addVariantRow('editVariantsList')") + Them bien the
+          .variants-list#editVariantsList
+          .variants-hint Neu co bien the, khach hang se chon size/loai va gia tu dong thay doi.
+
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mEdit')") Huy
+          button.m-ok(type="submit") Cap nhat
+
+block scripts
+  script.
+    // ── IMAGE PREVIEW ───────────────────────────────────
+    document.getElementById('btnAdd').onclick = () => {
+      resetPreview('addImgPreview','addPlaceholder','addImgFile')
+      clearVariants('addVariantsList')
+      om('mAdd')
+    }
+    document.getElementById('addImgFile').addEventListener('change', function() {
+      previewImg(this, 'addImgPreview', 'addPlaceholder')
+    })
+    document.getElementById('editImgFile').addEventListener('change', function() {
+      previewImg(this, 'editImgPreview', 'editPlaceholder')
+    })
+
+    function previewImg(input, pid, phid) {
+      const f = input.files[0]; if (!f) return
+      const r = new FileReader()
+      r.onload = e => {
+        document.getElementById(pid).src = e.target.result
+        document.getElementById(pid).style.display = 'block'
+        document.getElementById(phid).style.display = 'none'
+      }
+      r.readAsDataURL(f)
+    }
+    function resetPreview(pid, phid, fid) {
+      document.getElementById(pid).style.display = 'none'
+      document.getElementById(pid).src = ''
+      document.getElementById(phid).style.display = 'flex'
+      document.getElementById(fid).value = ''
+    }
+
+    // ── VARIANT ROWS ────────────────────────────────────
+    function addVariantRow(listId, label='', price='') {
+      const list = document.getElementById(listId)
+      const row  = document.createElement('div')
+      row.className = 'variant-row'
+      row.innerHTML =
+        '<input type="text"   name="variantLabel" placeholder="VD: 2kg / Vi nguyen ban" value="' + label + '" required>' +
+        '<input type="number" name="variantPrice" placeholder="Gia (VND)" value="' + price + '" min="1" required>' +
+        '<button type="button" class="vr-rm" onclick="this.parentElement.remove()">✕</button>'
+      list.appendChild(row)
+      row.querySelector('input').focus()
+    }
+
+    function clearVariants(listId) {
+      document.getElementById(listId).innerHTML = ''
+    }
+
+    function loadVariants(listId, variants) {
+      clearVariants(listId)
+      variants.forEach(v => addVariantRow(listId, v.label, v.price))
+    }
+
+    // ── OPEN EDIT ───────────────────────────────────────
+    function openEdit(btn) {
+      const d = btn.dataset
+      document.getElementById('eId').value    = d.id
+      document.getElementById('eName').value   = d.name
+      document.getElementById('eEmoji').value  = d.emoji
+      document.getElementById('ePrice').value  = d.price
+      document.getElementById('eUnit').value   = d.unit
+      document.getElementById('eOrigin').value = d.origin
+      document.getElementById('eDesc').value   = d.description
+      document.getElementById('eBadge').value  = d.badge
+      document.getElementById('eActive').value = d.active
+
+      const catSel = document.getElementById('eCat')
+      for (let o of catSel.options) o.selected = (o.value === d.category)
+
+      const preview = document.getElementById('editImgPreview')
+      const ph      = document.getElementById('editPlaceholder')
+      if (d.image) {
+        preview.src = d.image; preview.style.display = 'block'; ph.style.display = 'none'
+      } else {
+        preview.style.display = 'none'; ph.style.display = 'flex'
+      }
+      document.getElementById('editImgFile').value = ''
+
+      // Load variants
+      try {
+        const variants = JSON.parse(d.variants || '[]')
+        loadVariants('editVariantsList', variants)
+      } catch { clearVariants('editVariantsList') }
+
+      om('mEdit')
+    }
+
+    // ── SUBMIT (multipart) ──────────────────────────────
+    function bindForm(formId, url, onSuccess) {
+      document.getElementById(formId)?.addEventListener('submit', async function(e) {
+        e.preventDefault()
+        const btn = this.querySelector('.m-ok')
+        const orig = btn.textContent
+        btn.textContent = 'Dang luu...'; btn.disabled = true
+        try {
+          const r    = await fetch(url, { method: 'POST', body: new FormData(this) })
+          const data = await r.json()
+          if (data.success) { atoast('Thanh cong!', 'ok'); onSuccess() }
+          else atoast(data.message || 'Co loi!', 'err')
+        } catch { atoast('Loi ket noi!', 'err') }
+        finally { btn.textContent = orig; btn.disabled = false }
+      })
+    }
+    bindForm('fAdd',  '/admin/products/add',  () => location.reload())
+    bindForm('fEdit', '/admin/products/edit', () => location.reload())
+
+    // ── XOA ─────────────────────────────────────────────
+    async function del(id) {
+      if (!confirm('Xoa san pham nay? Hanh dong khong the hoan tac!')) return
+      const r = await api('/admin/products/delete', { id })
+      if (r.success) { atoast('Da xoa!', 'ok'); setTimeout(() => location.reload(), 700) }
+      else atoast(r.message || 'Loi!', 'err')
+    }
+
+    // ── TOGGLE ──────────────────────────────────────────
+    async function toggleStatus(id, btn) {
+      const r = await api('/admin/products/toggle', { id })
+      if (r.success) {
+        btn.dataset.active = r.isActive
+        btn.textContent    = r.isActive ? 'Dang ban' : 'Da an'
+        btn.style.background = r.isActive ? 'rgba(82,196,26,.15)' : 'rgba(255,107,107,.12)'
+        btn.style.color      = r.isActive ? '#2E7D32' : '#C62828'
+        atoast(r.isActive ? 'Da bat hoat dong!' : 'Da an san pham!', 'ok')
+      }
+    }

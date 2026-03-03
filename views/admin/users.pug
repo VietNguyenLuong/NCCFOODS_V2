@@ -1,0 +1,90 @@
+extends layout
+block content
+  - const currentPage = 'users'
+  .p-acts
+    p.p-acts-title Danh sach tai khoan
+    button.a-btn-add#btnAdd + Them tai khoan
+  .tbl-wrap
+    table.a-table
+      thead
+        tr
+          th Ho ten
+          th Email
+          th SDT
+          th Vai tro
+          th Ngay tao
+          th Thao tac
+      tbody
+        each u in users
+          tr
+            td= u.name
+            td= u.email
+            td= u.phone || '-'
+            td: span.s-badge(class=u.role==='admin'?'s-confirmed':'s-shipped')= u.role
+            td= new Date(u.createdAt).toLocaleDateString('vi-VN')
+            td(style="display:flex;gap:6px")
+              button.a-btn.a-btn-edit(onclick=`openEdit('${u._id}','${u.name}','${u.email}','${u.phone||''}','${u.role}')`) Sua
+              button.a-btn.a-btn-delete(onclick=`del('${u._id}')`) Xoa
+
+  .m-overlay#mAdd
+    .modal
+      p.m-title Them tai khoan
+      form.m-form#fAdd
+        div
+          label Ho va ten *
+          input(type="text" name="name" required)
+        div
+          label Email *
+          input(type="email" name="email" required)
+        div
+          label Mat khau *
+          input(type="password" name="password" required minlength="6")
+        div
+          label SDT
+          input(type="tel" name="phone")
+        div
+          label Vai tro
+          select(name="role")
+            option(value="user") User
+            option(value="admin") Admin
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mAdd')") Huy
+          button.m-ok(type="submit") Luu
+
+  .m-overlay#mEdit
+    .modal
+      p.m-title Chinh sua tai khoan
+      form.m-form#fEdit
+        input(type="hidden" name="id" id="eId")
+        div
+          label Ho va ten
+          input#eName(type="text" name="name" required)
+        div
+          label Email
+          input#eEmail(type="email" name="email" required)
+        div
+          label Mat khau moi (bo trong neu khong doi)
+          input(type="password" name="password")
+        div
+          label SDT
+          input#ePhone(type="tel" name="phone")
+        div
+          label Vai tro
+          select#eRole(name="role")
+            option(value="user") User
+            option(value="admin") Admin
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mEdit')") Huy
+          button.m-ok(type="submit") Cap nhat
+
+block scripts
+  script.
+    document.getElementById('btnAdd').onclick = () => om('mAdd')
+    function openEdit(id,name,email,phone,role){
+      document.getElementById('eId').value=id; document.getElementById('eName').value=name
+      document.getElementById('eEmail').value=email; document.getElementById('ePhone').value=phone
+      document.getElementById('eRole').value=role; om('mEdit')
+    }
+    sfm('fAdd','/admin/users/add',()=>location.reload())
+    sfm('fEdit','/admin/users/edit',()=>location.reload())
+    async function del(id){if(!confirm('Xoa tai khoan nay?'))return;const r=await api('/admin/users/delete',{id});if(r.success){atoast('Da xoa!','ok');setTimeout(()=>location.reload(),700)}else atoast(r.message,'err')}

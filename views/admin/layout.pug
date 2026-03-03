@@ -1,0 +1,57 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title= title + ' — FruitShop Admin'
+    link(rel="stylesheet" href="/css/admin.css")
+    block head
+
+  body
+    aside.sidebar
+      .sb-logo 🍊 FruitShop
+      nav
+        .sb-sec Tong quan
+        a.sb-link(href="/admin" class=(currentPage==='dashboard'?'active':''))
+          span.sb-icon 📊
+          | Thong ke
+        .sb-sec Quan ly
+        a.sb-link(href="/admin/users" class=(currentPage==='users'?'active':''))
+          span.sb-icon 👥
+          | Tai khoan
+        a.sb-link(href="/admin/categories" class=(currentPage==='categories'?'active':''))
+          span.sb-icon 🏷
+          | Danh muc
+        a.sb-link(href="/admin/products" class=(currentPage==='products'?'active':''))
+          span.sb-icon 🍎
+          | San pham
+        .sb-sec Don hang
+        a.sb-link(href="/admin/orders/pending" class=(currentPage==='pending'?'active':''))
+          span.sb-icon ⏳
+          | Cho xac nhan
+        a.sb-link(href="/admin/orders/confirmed" class=(currentPage==='confirmed'?'active':''))
+          span.sb-icon ✅
+          | Da xac nhan
+        a.sb-link(href="/admin/orders/shipped" class=(currentPage==='shipped'?'active':''))
+          span.sb-icon 🚚
+          | Da gui
+      .sb-foot
+        | Xin chao, #{admin.name}
+        br
+        a(href="/admin/logout") Dang xuat
+
+    .a-main
+      header.a-top
+        h1.a-top-title= title
+        .a-top-user
+          .a-ava= admin.name[0].toUpperCase()
+          span= admin.name
+
+      .a-content
+        block content
+
+    .a-toast#aToast
+      span#aToastMsg
+
+    script(src="/js/admin.js")
+    block scripts

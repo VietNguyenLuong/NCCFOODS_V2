@@ -1,0 +1,53 @@
+extends layout
+block content
+  - const currentPage = 'pending'
+  .p-acts
+    p.p-acts-title Don hang cho xac nhan
+    span.s-badge.s-pending= orders.length + ' don'
+  form.date-filter(method="GET" action="/admin/orders/pending")
+    input(type="date" name="from" value=from)
+    input(type="date" name="to" value=to)
+    button(type="submit") Loc
+    if from || to
+      a.a-btn.a-btn-cancel(href="/admin/orders/pending") Xoa loc
+  .tbl-wrap
+    if orders.length
+      table.a-table
+        thead
+          tr
+            th Ma don
+            th Khach hang
+            th SDT
+            th Tong tien
+            th Bill
+            th Ngay dat
+            th Thao tac
+        tbody
+          each o in orders
+            tr
+              td: code= o.orderCode
+              td= o.customerName
+              td= o.phone
+              td= (o.total/1000).toFixed(0) + '.000d'
+              td
+                if o.billImage
+                  a.a-btn.a-btn-view(href=o.billImage target="_blank") Xem bill
+                else
+                  span(style="color:var(--coral);font-size:.74rem") Chua co
+              td= new Date(o.createdAt).toLocaleDateString('vi-VN')
+              td(style="display:flex;gap:6px;flex-wrap:wrap")
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
+                button.a-btn.a-btn-confirm(onclick=`doAction('${o._id}','confirm')`) Xac nhan
+    else
+      .empty-state
+        span.es-icon 🎉
+        p Khong co don nao cho xu ly
+
+block scripts
+  script.
+    async function doAction(id,action){
+      if(!confirm('Xac nhan don hang nay?'))return
+      const r=await api('/admin/orders/'+id+'/'+action,{})
+      if(r.success){atoast('Thanh cong!','ok');setTimeout(()=>location.reload(),700)}
+      else atoast('Loi!','err')
+    }

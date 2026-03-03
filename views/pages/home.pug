@@ -1,0 +1,172 @@
+extends ../layout
+include ../partials/product-card
+
+block content
+
+  //- HERO
+  section.hero
+    .hero-left
+      .hero-tag
+        .tag-dot
+        | Giao hang 24h Toan quoc
+      h1.hero-title
+        | Hoa qua
+        br
+        em.line2 tuoi ngon
+        span.line3 moi ngay 🍊
+      p.hero-desc Tuyen chon ky tu nhung vuon qua noi tieng the gioi. Tuoi ngon dam bao hoac hoan tien 100%.
+      .hero-actions
+        a.btn.btn-primary(href="/products") Mua ngay →
+        a.btn.btn-ghost(href="#featured") Kham pha ↓
+      .hero-stats
+        .stat
+          span.stat-n 50+
+          span.stat-l Loai hoa qua
+        .stat
+          span.stat-n 10k+
+          span.stat-l Khach hang
+        .stat
+          span.stat-n 24h
+          span.stat-l Giao hang
+
+    .hero-right
+      .hero-stage
+        .hero-blob
+        span.main-emoji 🍉
+        .orbit
+          span.orbit-item(style="--i:0") 🍊
+          span.orbit-item(style="--i:1") 🍇
+          span.orbit-item(style="--i:2") 🥭
+          span.orbit-item(style="--i:3") 🍓
+        .float-card.top ⭐ 4.9 / 5 · 3.2k danh gia
+        .float-card.bot 🚚 Mien phi don 300k+
+
+  //- MARQUEE
+  .marquee(aria-hidden="true")
+    .marquee-track
+      each item in ['Shine Muscat', 'Xoai Hoa Loc', 'Dau Da Lat', 'Viet Quat My', 'Dao Han Quoc', 'Cam Valencia', 'Kiwi Vang', 'Cherry My', 'Shine Muscat', 'Xoai Hoa Loc', 'Dau Da Lat', 'Viet Quat My', 'Dao Han Quoc', 'Cam Valencia', 'Kiwi Vang', 'Cherry My']
+        span.marquee-item= '✦  ' + item + '  '
+
+  //- AI MOOD
+  //- GIOI THIEU CONG TY
+  section.section.about-section
+    .container
+      .about-layout
+        .about-left
+          span.section-label Ve chung toi
+          h2.section-title
+            | Hon 10 nam
+            br
+            em mang vi ngon
+            |  den ban
+          p.about-desc
+            | FruitShop duoc thanh lap nam 2013 voi su menh don gian: mang nhung loai hoa qua tuoi ngon nhat, sach nhat tu khap the gioi ve tung ban an Viet Nam. Chung toi lam viec truc tiep voi cac vuon trong uy tin tai Nhat Ban, Han Quoc, Australia va cac tinh thanh noi tieng trong nuoc.
+          p.about-desc
+            | Moi trai cay deu duoc kiem dinh nghiem ngat — tu du luong thuoc bao ve thuc vat, do ngot chuẩn, den bao bi bao quan lanh — truoc khi den tay ban. Do la cam ket ma chung toi giu vung moi ngay.
+          .about-values
+            each v in [['🌱','100% Tu nhien','Khong chat bao quan doc hai, khong tao mau nhan tao'],['🤝','Lien ket vuon trong','Hop dong doc quyen voi 40+ vuon trong chon loc'],['❄️','Chuoi lanh khep kin','Tu vuon den cua — luon duoi 8 do C']]
+              .about-value-item
+                span.av-icon= v[0]
+                div
+                  p.av-title= v[1]
+                  p.av-desc= v[2]
+
+        .about-right
+          .about-img-grid
+            .about-img-main
+              .about-img-placeholder
+                span 🌿
+                p Chuyen tham vuon 2024
+            .about-img-side
+              .about-img-sm
+                span 🍊
+                p Kiem dinh chat luong
+              .about-img-sm
+                span 📦
+                p Dong goi chuan han
+          .about-cert-row
+            each cert in [['🏆','Top 10 Thuong hieu 2023'],['✅','Chung nhan GlobalGAP'],['🌍','Xuat khau 5 quoc gia']]
+              .cert-badge
+                span= cert[0]
+                p= cert[1]
+
+
+  //- CATEGORIES
+  section.section
+    .container
+      .section-header.center
+        span.section-label Danh muc
+        h2.section-title Kham pha theo loai qua
+      .cat-scroll
+        a.cat-chip(href="/products") 🌟 Tat ca
+        each c in categories
+          a.cat-chip(href=`/products?cat=${c.slug}`)
+            span.cat-emoji= c.emoji
+            | #{c.name}
+
+  //- FEATURED
+  section.section#featured
+    .container
+      .section-header
+        div
+          span.section-label San pham noi bat
+          h2.section-title Hang tuoi moi ngay
+        a.btn.btn-outline(href="/products") Xem tat ca →
+      .products-grid
+        each p, i in featured
+          +productCard(p, i * 0.07)
+
+  //- PROMO
+  section.section
+    .container
+      .promo-banner.reveal
+        .promo-left
+          span.promo-tag 🎁 Uu dai tuan nay
+          h2.promo-title
+            | Combo Vitamin C
+            br
+            em Tang de khang mua he
+          p.promo-desc Bo cam, buoi, chanh leo, kiwi tuoi — tiet kiem 25% so voi mua le. Chi con 48 tieng!
+          a.btn.btn-citrus(href="/products?cat=combo") Dat combo ngay →
+        .promo-emoji 🍊
+
+  //- WHY
+  section.section
+    .container
+      .section-header.center
+        span.section-label Tai sao chon FruitShop?
+        h2.section-title Cam ket tung trai cay
+      .why-grid
+        each item in [['🌱','100% Tu nhien','Khong hoa chat, khong pham mau. Tuoi thang tu vuon.'],['🚀','Giao trong 24h','Dat truoc 20h nhan hang sang hom sau. Dong goi lanh.'],['💯','Hoan tien 100%','Khong hai long? Hoan toan 100% trong 24h.'],['🌍','Nguon goc ro rang','Moi san pham co ma tra cuu xuat xu chinh xac.']]
+          .why-card.reveal
+            span.why-icon= item[0]
+            h3.why-title= item[1]
+            p.why-desc= item[2]
+
+  //- TESTI
+  section.section
+    .container
+      .section-header.center
+        span.section-label Danh gia
+        h2.section-title Khach hang noi gi
+      .testi-grid
+        each t in [['Nho Shine Muscat ngot khong tuong, vo mong an ca hat. Tuan nao cung order!','Nguyen Thi Ha','Ha Noi','👩','★★★★★'],['Giao sieu nhanh, dong goi can than. Mua cho ca gia dinh hang tuan.','Tran Minh Khoi','TP.HCM','👨','★★★★★'],['Dau tay Da Lat tuoi rat ngon. Dat them combo tong hop, rat dang tien.','Le Thu Trang','Da Nang','👩','★★★★☆']]
+          .testi-card.reveal
+            p.testi-stars= t[4]
+            p.testi-text= '"' + t[0] + '"'
+            .testi-author
+              .testi-ava= t[3]
+              div
+                p.testi-name= t[1]
+                p.testi-loc= t[2]
+
+  //- NEWSLETTER
+  section.section
+    .container
+      .newsletter.reveal
+        div
+          h3 Nhan uu dai som nhat 🍊
+          p Dang ky de nhan combo doc quyen va giam den 30%.
+        form.newsletter-form(action="#" method="post")
+          input(type="email" name="email" placeholder="Email cua ban..." required)
+          button(type="submit") Dang ky

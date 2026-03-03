@@ -1,0 +1,23 @@
+extends ../layout
+block content
+  .auth-page
+    .auth-card
+      p.auth-logo 🍊 FruitShop
+      p.auth-sub Tao tai khoan moi
+      if error
+        p.auth-error= error
+      form.auth-form(method="POST" action="/auth/register")
+        div
+          label Ho va ten *
+          input(type="text" name="name" placeholder="Nguyen Van A" required)
+        div
+          label Email *
+          input(type="email" name="email" placeholder="email@example.com" required)
+        div
+          label Mat khau *
+          input(type="password" name="password" placeholder="Toi thieu 6 ky tu" required minlength="6")
+        div
+          label So dien thoai
+          input(type="tel" name="phone" placeholder="0912 345 678")
+        button.btn.btn-primary.btn-block(type="submit") Dang ky →
+      p.auth-switch Da co tai khoan? #[a(href="/auth/login") Dang nhap]

@@ -1,0 +1,55 @@
+extends layout
+block content
+  - const currentPage = 'confirmed'
+  .p-acts
+    p.p-acts-title Don hang da xac nhan
+    span.s-badge.s-confirmed= orders.length + ' don'
+  form.date-filter(method="GET" action="/admin/orders/confirmed")
+    input(type="date" name="from" value=from)
+    input(type="date" name="to" value=to)
+    button(type="submit") Loc
+    if from || to
+      a.a-btn.a-btn-cancel(href="/admin/orders/confirmed") Xoa loc
+  .tbl-wrap
+    if orders.length
+      table.a-table
+        thead
+          tr
+            th Ma don
+            th Khach hang
+            th SDT
+            th Dia chi
+            th Tong tien
+            th Xac nhan
+            th Thao tac
+        tbody
+          each o in orders
+            tr
+              td: code= o.orderCode
+              td= o.customerName
+              td= o.phone
+              td(style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title=o.address)= o.address
+              td= (o.total/1000).toFixed(0) + '.000d'
+              td= o.confirmedAt ? new Date(o.confirmedAt).toLocaleDateString('vi-VN') : '-'
+              td(style="display:flex;gap:6px;flex-wrap:wrap")
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
+                button.a-btn.a-btn-ship(onclick=`doAction('${o._id}','ship')`) Da dong hang
+                button.a-btn.a-btn-cancel(onclick=`doCancel('${o._id}')`) Huy
+    else
+      .empty-state
+        span.es-icon 📦
+        p Chua co don nao
+
+block scripts
+  script.
+    async function doAction(id,action){
+      const msg=action==='ship'?'Xac nhan da dong goi va gui hang?':'Xac nhan?'
+      if(!confirm(msg))return
+      const r=await api('/admin/orders/'+id+'/'+action,{})
+      if(r.success){atoast('Thanh cong!','ok');setTimeout(()=>location.reload(),700)}
+    }
+    async function doCancel(id){
+      if(!confirm('Huy don hang nay?'))return
+      const r=await api('/admin/orders/'+id+'/cancel',{})
+      if(r.success){atoast('Da huy!','ok');setTimeout(()=>location.reload(),700)}
+    }

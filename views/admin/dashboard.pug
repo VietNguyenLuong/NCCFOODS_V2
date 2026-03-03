@@ -1,0 +1,71 @@
+extends layout
+block content
+  - const currentPage = 'dashboard'
+
+  .stat-grid
+    .stat-card
+      .stat-icon.si-jade 👥
+      div
+        p.stat-num= stats.totalCustomers
+        p.stat-lbl Khach hang
+    .stat-card
+      .stat-icon.si-plum 📦
+      div
+        p.stat-num= stats.ordersMonth
+        p.stat-lbl Don trong thang
+    .stat-card
+      .stat-icon.si-lime 🚚
+      div
+        p.stat-num= stats.totalShipped
+        p.stat-lbl Da giao
+    .stat-card
+      .stat-icon.si-citrus ⏳
+      div
+        p.stat-num= stats.totalPending
+        p.stat-lbl Cho xac nhan
+    .stat-card
+      .stat-icon.si-sky ✅
+      div
+        p.stat-num= stats.totalConfirmed
+        p.stat-lbl Da xac nhan
+    .stat-card
+      .stat-icon.si-coral 💰
+      div
+        p.stat-num= (stats.totalRevenue/1000000).toFixed(1) + 'M'
+        p.stat-lbl Tong doanh thu
+
+  .chart-box
+    p.chart-title 📈 Doanh thu 6 thang
+    - const maxRev = Math.max(...monthlyRev.map(m => m.rev), 1)
+    .bar-row
+      each m in monthlyRev
+        .bar-col
+          .bar-fill(style=`height:${Math.max((m.rev/maxRev)*100,2)}%` title=m.rev)
+          span.bar-lbl= 'T' + m._id.m
+
+  .tbl-wrap
+    .tbl-head
+      span.tbl-head-title Don hang gan nhat
+      a.a-btn.a-btn-view(href="/admin/orders/pending") Xem tat ca
+    if recentOrders.length
+      table.a-table
+        thead
+          tr
+            th Ma don
+            th Khach hang
+            th Tong tien
+            th Trang thai
+            th Ngay dat
+        tbody
+          each o in recentOrders
+            tr
+              td
+                code= o.orderCode
+              td= o.customerName
+              td= (o.total/1000).toFixed(0) + '.000d'
+              td: span.s-badge(class='s-'+o.status)= o.status
+              td= new Date(o.createdAt).toLocaleDateString('vi-VN')
+    else
+      .empty-state
+        span.es-icon 📭
+        p Chua co don hang

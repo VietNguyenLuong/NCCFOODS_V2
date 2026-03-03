@@ -1,0 +1,40 @@
+extends layout
+block content
+  - const currentPage = 'shipped'
+  .p-acts
+    p.p-acts-title Don hang da gui
+    span.s-badge.s-shipped= orders.length + ' don'
+  .tbl-wrap
+    if orders.length
+      table.a-table
+        thead
+          tr
+            th Ma don
+            th Khach hang
+            th SDT
+            th Tong tien
+            th Ngay gui
+            th Thao tac
+        tbody
+          each o in orders
+            tr
+              td: code= o.orderCode
+              td= o.customerName
+              td= o.phone
+              td= (o.total/1000).toFixed(0) + '.000d'
+              td= o.shippedAt ? new Date(o.shippedAt).toLocaleDateString('vi-VN') : '-'
+              td(style="display:flex;gap:6px")
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
+                button.a-btn.a-btn-restore(onclick=`doRestore('${o._id}')`) Khoi phuc
+    else
+      .empty-state
+        span.es-icon 🚚
+        p Chua co don nao duoc gui
+
+block scripts
+  script.
+    async function doRestore(id){
+      if(!confirm('Khoi phuc don hang nay?'))return
+      const r=await api('/admin/orders/'+id+'/restore',{})
+      if(r.success){atoast('Da khoi phuc!','ok');setTimeout(()=>location.reload(),700)}
+    }

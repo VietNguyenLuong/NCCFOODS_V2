@@ -1,0 +1,53 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title= title + ' — FruitShop'
+    link(rel="stylesheet" href="/css/style.css")
+    block head
+
+  body
+    .cursor#cursor
+    .cursor-trail#cursorTrail
+
+    .loader#loader
+      .loader-fruits
+        span.loader-fruit 🍊
+        span.loader-fruit 🍇
+        span.loader-fruit 🍓
+        span.loader-fruit 🥭
+      .loader-bar
+
+    include partials/navbar
+
+    main
+      block content
+
+    include partials/footer
+
+    button.chat-fab#chatFab(aria-label="Chat tu van") 🤖
+
+    .chat-win#chatWin
+      .chat-head
+        .chat-head-info
+          .chat-head-ava 🌿
+          div
+            p.chat-head-name FruitBot AI
+            p.chat-head-status Online · Tu van dinh duong
+        button.chat-close-btn#chatCloseBtn ✕
+      .chat-msgs#chatMsgs
+        .chat-msg.bot Xin chao! 🍊 Toi la FruitBot — tro ly dinh duong cua FruitShop. Ban muon tu van ve loai qua nao, che do an uong hay suc khoe?
+        .chat-typing#chatTyping
+          .typing-dot
+          .typing-dot
+          .typing-dot
+      .chat-input-wrap
+        textarea.chat-textarea#chatInput(placeholder="Hoi ve dinh duong, hoa qua..." rows="1")
+        button.chat-send-btn#chatSend ➤
+
+    .toast#toast
+      span#toastMsg Them vao gio hang!
+
+    script(src="/js/main.js")
+    block scripts

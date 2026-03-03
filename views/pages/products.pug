@@ -1,0 +1,27 @@
+extends ../layout
+include ../partials/product-card
+
+block content
+  .page-hero
+    .container
+      span.section-label San pham
+      h1.page-title Tat ca hoa qua
+      p.page-sub Tuyen chon ky, giao tan noi, dam bao tuoi ngon.
+
+  section.section
+    .container
+      .filter-row
+        a.filter-tab(href="/products" class=(!currentCat?'active':'')) 🌟 Tat ca
+        each c in categories
+          a.filter-tab(href=`/products?cat=${c.slug}` class=(currentCat===c.slug?'active':''))
+            = c.emoji + ' ' + c.name
+
+      if products.length
+        .products-grid
+          each p, i in products
+            +productCard(p, i * 0.06)
+      else
+        .cart-empty(style="text-align:center;padding:60px 0")
+          p(style="font-size:48px;margin-bottom:12px") 🔍
+          p(style="color:var(--slate)") Khong tim thay san pham nao
+          a.btn.btn-primary(href="/products" style="margin-top:20px") Xem tat ca

@@ -1,0 +1,73 @@
+extends layout
+block content
+  - const currentPage = 'categories'
+  .p-acts
+    p.p-acts-title Danh sach danh muc
+    button.a-btn-add#btnAdd + Them danh muc
+  .tbl-wrap
+    table.a-table
+      thead
+        tr
+          th Emoji
+          th Ten danh muc
+          th Slug
+          th Mo ta
+          th Ngay tao
+          th Thao tac
+      tbody
+        each c in categories
+          tr
+            td(style="font-size:1.4rem")= c.emoji
+            td= c.name
+            td: code(style="font-size:.74rem;color:var(--jade);background:rgba(0,137,123,.08);padding:2px 8px;border-radius:6px")= c.slug
+            td= c.description || '-'
+            td= new Date(c.createdAt).toLocaleDateString('vi-VN')
+            td(style="display:flex;gap:6px")
+              button.a-btn.a-btn-edit(onclick=`openEdit('${c._id}','${c.name}','${c.emoji}','${c.description||''}')`) Sua
+              button.a-btn.a-btn-delete(onclick=`del('${c._id}')`) Xoa
+
+  .m-overlay#mAdd
+    .modal
+      p.m-title Them danh muc
+      form.m-form#fAdd
+        div
+          label Ten danh muc *
+          input(type="text" name="name" required)
+        div
+          label Emoji
+          input(type="text" name="emoji" placeholder="🍎" maxlength="4")
+        div
+          label Mo ta
+          input(type="text" name="description" placeholder="Mo ta ngan...")
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mAdd')") Huy
+          button.m-ok(type="submit") Luu
+
+  .m-overlay#mEdit
+    .modal
+      p.m-title Chinh sua danh muc
+      form.m-form#fEdit
+        input(type="hidden" name="id" id="eId")
+        div
+          label Ten danh muc *
+          input#eName(type="text" name="name" required)
+        div
+          label Emoji
+          input#eEmoji(type="text" name="emoji" maxlength="4")
+        div
+          label Mo ta
+          input#eDesc(type="text" name="description")
+        .m-acts
+          button.m-cancel(type="button" onclick="cm('mEdit')") Huy
+          button.m-ok(type="submit") Cap nhat
+
+block scripts
+  script.
+    document.getElementById('btnAdd').onclick = () => om('mAdd')
+    function openEdit(id,name,emoji,desc){
+      document.getElementById('eId').value=id; document.getElementById('eName').value=name
+      document.getElementById('eEmoji').value=emoji; document.getElementById('eDesc').value=desc; om('mEdit')
+    }
+    sfm('fAdd','/admin/categories/add',()=>location.reload())
+    sfm('fEdit','/admin/categories/edit',()=>location.reload())
+    async function del(id){if(!confirm('Xoa danh muc?'))return;const r=await api('/admin/categories/delete',{id});if(r.success){atoast('Da xoa!','ok');setTimeout(()=>location.reload(),700)}else atoast(r.message,'err')}
