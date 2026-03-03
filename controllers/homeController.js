@@ -4,7 +4,7 @@ const Category = require('../models/Category')
 exports.getHome = async (req, res) => {
   try {
     const [featured, categories] = await Promise.all([
-      Product.find({ isActive: true, isFeatured: true }).populate('category').limit(20),
+      Product.find({ isActive: true, isFeatured: true }).populate('category').limit(20).lean(),
       Category.find({ isActive: true })
     ])
     const moods = [

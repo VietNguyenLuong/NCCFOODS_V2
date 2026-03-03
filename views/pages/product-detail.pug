@@ -97,7 +97,7 @@ block content
       if related.length
         .related-section
           h2.related-title Sản phẩm tương tự
-          .products-grid(style="grid-template-columns:repeat(4,1fr)")
+          .products-grid
             each p in related
               +productCard(p, 0)
 
