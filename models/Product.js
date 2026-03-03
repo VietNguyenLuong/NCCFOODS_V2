@@ -19,9 +19,10 @@ const productSchema = new mongoose.Schema({
   badge:       { type: String, enum: ['', 'new', 'hot', 'sale'], default: '' },
   image:       { type: String, default: '' },
   variants:    { type: [variantSchema], default: [] },
-  isActive:    { type: Boolean, default: true }
+  isActive:    { type: Boolean, default: true },
+  isFeatured: { type: Boolean, default: false }
 }, { timestamps: true })
 
-productSchema.index({ category: 1, isActive: 1 })
+productSchema.index({ isActive: 1, isFeatured: 1, category: 1 })
 productSchema.index({ slug: 1 })
 module.exports = mongoose.model('Product', productSchema)
