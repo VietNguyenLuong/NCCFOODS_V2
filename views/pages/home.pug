@@ -1,0 +1,172 @@
+extends ../layout
+include ../partials/product-card
+
+block content
+
+  //- HERO
+  section.hero
+    .hero-left
+      .hero-tag
+        .tag-dot
+        | Giao hàng 24h toàn quốc
+      h1.hero-title
+        | Hoa quả
+        br
+        em.line2 tươi ngon
+        span.line3 mỗi ngày 🍊
+      p.hero-desc Tuyển chọn kỹ từ những vườn quả nổi tiếng . Tươi ngon - chất lượng đảm bảo.
+      .hero-actions
+        a.btn.btn-primary(href="/products") Mua ngay →
+        a.btn.btn-ghost(href="#featured") Khám phá ↓
+      .hero-stats
+        .stat
+          span.stat-n 200+
+          span.stat-l Loại sản phẩm
+        .stat
+          span.stat-n 100k+
+          span.stat-l Khách hàng
+        .stat
+          span.stat-n 24h
+          span.stat-l Giao hàng
+
+    .hero-right
+      .hero-stage
+        .hero-blob
+        span.main-emoji 🍉
+        .orbit
+          span.orbit-item(style="--i:0") 🍊
+          span.orbit-item(style="--i:1") 🍇
+          span.orbit-item(style="--i:2") 🥭
+          span.orbit-item(style="--i:3") 🍓
+        .float-card.top ⭐ 4.9 / 5 · 49.2k đánh giá
+        .float-card.bot 🚚 Miễn phí đơn 45k+
+
+  //- MARQUEE
+  .marquee(aria-hidden="true")
+    .marquee-track
+      each item in ['Shine Muscat', 'Xoai Hoa Loc', 'Dau Da Lat', 'Viet Quat My', 'Dao Han Quoc', 'Cam Valencia', 'Kiwi Vang', 'Cherry My', 'Shine Muscat', 'Xoai Hoa Loc', 'Dau Da Lat', 'Viet Quat My', 'Dao Han Quoc', 'Cam Valencia', 'Kiwi Vang', 'Cherry My']
+        span.marquee-item= '✦  ' + item + '  '
+
+  //- AI MOOD
+  //- GIOI THIEU CONG TY
+  section.section.about-section
+    .container
+      .about-layout
+        .about-left
+          span.section-label Về chúng tôi
+          h2.section-title
+            | Hơn 5 năm
+            br
+            em mang vị ngon
+            |  đến bạn
+          p.about-desc
+            | NCCFOOD được thành lập năm 2020 với sứ mệnh đơn giản: mang những loại hoa quả tươi ngon nhất, sạch nhất từ Việt Nam về đến tay khách hàng. Chúng tôi làm việc trực tiếp với các vườn trồng úy tín tại Việt Nam, Hàn Quốc.
+          p.about-desc
+            | Mỗi loại sản phẩm đều được kiểm định nghiêm ngặt — từ dư lượng thuốc bảo vệ thực vật, độ ngọt tiêu chuẩn, đến quy trình bảo quản lạnh — trước khi đến tay khách hàng. Đó là cam kết mà chúng tôi giữ vững mỗi ngày.
+          .about-values
+            each v in [['🌱','100% Tự nhiên','Không chất quản quản độc hại, không tạo màu nhân tạo'],['🤝','Liên kết vườn trồng','Hop dong doc quyen voi 40+ vuon trong chon loc'],['❄️','Chuoi lanh khep kin','Tu vuon den cua — luon duoi 8 do C']]
+              .about-value-item
+                span.av-icon= v[0]
+                div
+                  p.av-title= v[1]
+                  p.av-desc= v[2]
+
+        .about-right
+          .about-img-grid
+            .about-img-main
+              .about-img-placeholder
+                span 🌿
+                p Nguồn hàng tuyển chọn kỹ lưỡng
+            .about-img-side
+              .about-img-sm
+                span 🍊
+                p Kiểm định chất lượng
+              .about-img-sm
+                span 📦
+                p Đóng gói chuẩn Hàn
+          .about-cert-row
+            each cert in [['🏅','Cam kết chất lượng mỗi ngày'],['📦','Đóng gói theo tiêu chuẩn an toàn'],['🚚','Giao hàng nhanh – đảm bảo độ tươi']]
+              .cert-badge
+                span= cert[0]
+                p= cert[1]
+
+
+  //- CATEGORIES
+  section.section
+    .container
+      .section-header.center
+        span.section-label Danh mục
+        h2.section-title Khám phá theo từng loại sản phẩm
+      .cat-scroll
+        a.cat-chip(href="/products") 🌟 TẤT CẢ
+        each c in categories
+          a.cat-chip(href=`/products?cat=${c.slug}`)
+            span.cat-emoji= c.emoji
+            | #{c.name}
+
+  //- FEATURED
+  section.section#featured
+    .container
+      .section-header
+        div
+          span.section-label Sản phẩm nổi bật
+          h2.section-title Hàng tươi mỗi ngày
+        a.btn.btn-outline(href="/products") Xem tất cả →
+      .products-grid
+        each p, i in featured
+          +productCard(p, i * 0.07)
+
+  //- PROMO
+  section.section
+    .container
+      .promo-banner.reveal
+        .promo-left
+          span.promo-tag 🎁 Ưu đãi tuần này
+          h2.promo-title
+            | Combo Vitamin C
+            br
+            em Tang de khang mua he
+          p.promo-desc Bo cam, buoi, chanh leo, kiwi tuoi — tiet kiem 25% so voi mua le. Chi con 48 tieng!
+          a.btn.btn-citrus(href="/products?cat=combo") Dat combo ngay →
+        .promo-emoji 🍊
+
+  //- WHY
+  section.section
+    .container
+      .section-header.center
+        span.section-label Tại sao chọn NCCFOOD?
+        h2.section-title Cam kết trên từng sản phẩm
+      .why-grid
+        each item in [['🌱','100% Tự nhiên','Không hóa chất - không phẩm màu. Tươi thẳng từ vườn.'],['🚀','Giao trong 24h','Đặt trước 21h mỗi ngày - nhận ngay hôm sau.'],['💯','Hoàn tiền 100%','Không hài lòng? Hoàn tiền 100% trong 48h.'],['🌍','Nguồn gốc rõ ràng','Mỗi sản phẩm đều có nguồn gốc xuất xứ rõ ràng.']]
+          .why-card.reveal
+            span.why-icon= item[0]
+            h3.why-title= item[1]
+            p.why-desc= item[2]
+
+  //- TESTI
+  section.section
+    .container
+      .section-header.center
+        span.section-label Đánh giá
+        h2.section-title Khách hàng nói gì
+      .testi-grid
+        each t in [['Xoài lép ngọt không tưởng, vỏ mỏng ăn cả hạt. Tuần nào cũng order!','Nguyen Thi Ha','Ha Noi','👩','★★★★★'],['Giao hàng siêu nhanh, đóng gói cẩn thận.','Tran Minh Khoi','TP.HCM','👨','★★★★★'],['Dau tay Da Lat tuoi rat ngon. Dat them combo tong hop, rat dang tien.','Le Thu Trang','Da Nang','👩','★★★★☆'],['Hoa quả tươi lắm luôn, ngọt tự nhiên, ăn là biết hàng chuẩn 👍','Nguyen Viet Luong','Ha Noi','👩','★★★★★'],['Đặt sáng mà chiều đã giao, đóng gói rất cẩn thận','Ha Van Huy','TP.Hue','👨','★★★★★'],['Mua biếu sếp mà ai cũng khen, lần sau chắc chắn ủng hộ tiếp.','Le Thanh Tung','Hai Phong','👩','★★★★☆']]
+          .testi-card.reveal
+            p.testi-stars= t[4]
+            p.testi-text= '"' + t[0] + '"'
+            .testi-author
+              .testi-ava= t[3]
+              div
+                p.testi-name= t[1]
+                p.testi-loc= t[2]
+
+  //- NEWSLETTER
+  section.section
+    .container
+      .newsletter.reveal
+        div
+          h3 Nhận ưu đãi mới nhất 🍊
+          p Đăng ký để nhận combo độc quyền và giảm đến 30%.
+        form.newsletter-form(action="#" method="post")
+          input(type="email" name="email" placeholder="Email của bạn..." required)
+          button(type="submit") Đăng ký

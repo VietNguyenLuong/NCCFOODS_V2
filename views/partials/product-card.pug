@@ -1,0 +1,20 @@
+mixin productCard(p, delay)
+  .product-card(style=`animation: cardReveal .5s ${delay || 0}s ease both`)
+    a.product-img(href=`/products/${p.slug}`)
+      if p.image
+        img.product-card-img(src=p.image alt=p.name)
+      else
+        .product-img-bg
+        span.product-emoji= p.emoji || '🍎'
+      if p.badge
+        .product-badge-wrap
+          span.p-badge(class=p.badge)= p.badge === 'new' ? 'MOI' : p.badge === 'hot' ? 'HOT' : 'SALE'
+      button.wish-btn(data-id=p._id || p.id) 🤍
+    .product-info
+      a.product-name(href=`/products/${p.slug}`)= p.name
+      p.product-origin= p.origin || ''
+      .product-foot
+        .product-price
+          span.price= (p.price/1000).toFixed(0) + '.000d'
+          span.unit / #{p.unit || 'kg'}
+        button.add-btn(data-id=p._id || p.id data-name=p.name data-price=p.price data-emoji=p.emoji) +

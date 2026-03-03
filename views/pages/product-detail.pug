@@ -1,0 +1,153 @@
+extends ../layout
+include ../partials/product-card
+
+block content
+  section.section.detail-section(style="padding-top:120px")
+    .container(style="max-width:1000px")
+
+      p.breadcrumb
+        a(href="/") Trang chủ
+        span.bc-sep  /
+        a(href="/products") Sản phẩm
+        span.bc-sep  /
+        span.bc-cur= product.name
+
+      .detail-main
+        //- ANH SAN PHAM
+        .detail-left
+          .product-image-wrap
+            if product.image
+              img.product-main-img(src=product.image alt=product.name)
+            else
+              .product-emoji-wrap
+                span(style="font-size:130px;filter:drop-shadow(0 12px 28px rgba(0,0,0,.1))") #{product.emoji || '🍎'}
+          if product.image
+            p.img-badge ✓ Ảnh thực tế sản phẩm
+
+        //- THONG TIN + VARIANTS
+        .detail-right
+          if product.category
+            a.section-label(href="/products?cat=#{product.category.slug}" style="text-decoration:none")
+              = product.category.emoji + ' ' + product.category.name
+
+          if product.badge
+            span.p-badge(class=product.badge style="display:inline-block;margin:8px 0 12px")
+              = product.badge === 'new' ? 'MOI' : product.badge === 'hot' ? 'HOT 🔥' : 'SALE'
+
+          h1.detail-title= product.name
+
+          if product.origin
+            p.detail-origin 📍 Xuất xứ: #{product.origin}
+
+          if product.description
+            p.detail-desc= product.description
+
+          //- PRICE DISPLAY
+          .price-wrap
+            span.detail-price#detailPrice
+              - const showPrice = product.variants && product.variants.length ? product.variants[0].price : product.price
+              = (showPrice/1000).toFixed(0) + '.000W'
+            span.detail-unit / #{product.unit || 'kg'}
+            if product.variants && product.variants.length
+              span.variant-price-hint  (giá theo loại đã chọn)
+
+          //- VARIANTS SELECTOR
+          if product.variants && product.variants.length
+            .variant-selector
+              p.variant-label Chọn loại / size:
+              .variant-chips
+                each v, i in product.variants
+                  button.variant-chip(
+                    type="button"
+                    data-price=v.price
+                    data-label=v.label
+                    data-vid=v._id
+                    class=(i === 0 ? 'active' : '')
+                    onclick="selectVariant(this)"
+                  )
+                    span.vc-label= v.label
+                    span.vc-price= (v.price/1000).toFixed(0) + '.000W'
+
+          //- QTY
+          .qty-row
+            label(style="font-size:.85rem;font-weight:700;color:var(--ink)") Số lượng:
+            .qty-control
+              button.qty-btn(onclick="adj(-1)") −
+              input#qtyInput(type="number" min="1" value="1")
+              button.qty-btn(onclick="adj(1)") +
+
+          //- ACTIONS
+          .detail-actions
+            button.btn.btn-primary#addDetailBtn(
+              data-id=product._id
+              data-name=product.name
+              data-price=(product.variants && product.variants.length ? product.variants[0].price : product.price)
+              data-emoji=product.emoji
+              data-has-variants=(product.variants && product.variants.length ? 'true' : 'false')
+            ) 🛒 Thêm vào giỏ
+            a.btn.btn-outline(href="/cart") Xem giỏ hàng →
+
+          .trust-row
+            each badge in [['✓','Hoa qua tuoi'],['🚚','Giao 24h'],['💯','Hoan tien 100%']]
+              .trust-item
+                span= badge[0]
+                |  #{badge[1]}
+
+      //- SAN PHAM LIEN QUAN
+      if related.length
+        .related-section
+          h2.related-title Sản phẩm tương tự
+          .products-grid(style="grid-template-columns:repeat(4,1fr)")
+            each p in related
+              +productCard(p, 0)
+
+block scripts
+  script.
+    // Selected variant tracking
+    let selectedVariant = null
+    const hasVariants = document.getElementById('addDetailBtn').dataset.hasVariants === 'true'
+
+    if (!{product.variants && product.variants.length}) {
+      selectedVariant = {
+        price: !{product.variants && product.variants.length ? product.variants[0].price : 0},
+        label: "!{product.variants && product.variants.length ? product.variants[0].label : ''}",
+        id: "!{product.variants && product.variants.length ? product.variants[0]._id : ''}"
+      }
+    }
+
+    window.selectVariant = function(btn) {
+      document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('active'))
+      btn.classList.add('active')
+
+      const price = parseInt(btn.dataset.price)
+      const label = btn.dataset.label
+      selectedVariant = { price, label, id: btn.dataset.vid }
+
+      const priceEl = document.getElementById('detailPrice')
+      priceEl.textContent = (price/1000).toFixed(0) + '.000W'
+
+      const addBtn = document.getElementById('addDetailBtn')
+      addBtn.dataset.price = price
+    }
+    function adj(d) {
+      const inp = document.getElementById('qtyInput')
+      inp.value = Math.max(1, parseInt(inp.value || 1) + d)
+    }
+
+    document.getElementById('addDetailBtn').addEventListener('click', function() {
+      const qty   = parseInt(document.getElementById('qtyInput').value) || 1
+      const { id, name, emoji } = this.dataset
+      const price = parseInt(this.dataset.price)
+
+      // Build cart item — include variant label in name if applicable
+      const cartName = selectedVariant ? name + ' (' + selectedVariant.label + ')' : name
+      const cartId   = selectedVariant ? id + '_' + selectedVariant.id : id
+
+      const cart = JSON.parse(localStorage.getItem('fs-cart') || '[]')
+      const ex   = cart.find(c => c.id === cartId)
+      if (ex) ex.qty += qty
+      else cart.push({ id: cartId, productId: id, name: cartName, price, emoji, qty, variant: selectedVariant?.label || '' })
+      localStorage.setItem('fs-cart', JSON.stringify(cart))
+      updateCartCount()
+      showToast(emoji + ' ' + cartName + ' x' + qty + ' đã vào giỏ!')
+    })

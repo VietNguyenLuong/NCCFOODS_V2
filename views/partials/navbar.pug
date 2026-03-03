@@ -1,0 +1,33 @@
+nav.navbar#navbar
+  a.nav-logo(href="/")
+    span.nav-logo-icon 🍊
+    span NCCFOOD
+  ul.nav-links
+    li: a(href="/") Trang chủ
+    li: a(href="/products") Sản phẩm
+    li: a(href="/cart") Giỏ hàng
+    if currentUser
+      li: a(href="/my-orders") Đơn hàng của tôi
+  .nav-actions
+    if currentUser
+      .nav-user
+        .nav-user-avatar= currentUser.name[0].toUpperCase()
+        span= currentUser.name
+      a.btn.btn-ghost.btn-logout.btn-sm(href="/auth/logout") Đăng xuất
+
+      .nav-user-mobile
+        button.nav-user-mobile-toggle(type="button" onclick="toggleUserMenu()")
+          | ☰
+
+        .nav-user-mobile-dropdown#userDropdown(style="display:none")
+          .nav-user-mobile-info
+            .nav-user-mobile-avatar= currentUser.name[0].toUpperCase()
+            span= currentUser.name
+
+          hr
+
+          a.nav-user-mobile-logout(href="/auth/logout") Đăng xuất
+    else
+      a.btn.btn-ghost.btn-sm(href="/auth/login") Đăng nhập
+      a.btn.btn-primary.btn-sm(href="/auth/register") Đăng ký
+    a.btn.btn-outline.btn-sm(href="/cart") 🛒 Giỏ hàng #[span#navCartCount(style="background:var(--jade);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:4px") 0]

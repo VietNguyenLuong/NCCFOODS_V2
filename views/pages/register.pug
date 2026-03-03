@@ -1,0 +1,23 @@
+extends ../layout
+block content
+  .auth-page
+    .auth-card
+      p.auth-logo 🍊 NCCFOODS
+      p.auth-sub Tạo tài khoản mới
+      if error
+        p.auth-error= error
+      form.auth-form(method="POST" action="/auth/register")
+        div
+          label Họ và tên *
+          input(type="text" name="name" placeholder="Nguyen Van A" required)
+        div
+          label Email *
+          input(type="email" name="email" placeholder="email@example.com" required)
+        div
+          label Mật khẩu *
+          input(type="password" name="password" placeholder="Tối thiểu 6 ký tự" required minlength="6")
+        div
+          label Số điện thoại
+          input(type="tel" name="phone" placeholder="0912 345 678")
+        button.btn.btn-primary.btn-block(type="submit") Đăng ký →
+      p.auth-switch Đã có tài khoản? #[a(href="/auth/login") Đăng nhập]

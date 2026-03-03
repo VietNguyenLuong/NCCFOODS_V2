@@ -1,0 +1,53 @@
+doctype html
+html(lang="vi")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    title= title + ' — NCCFOODS'
+    link(rel="stylesheet" href="/css/style.css")
+    block head
+
+  body
+    .cursor#cursor
+    .cursor-trail#cursorTrail
+
+    .loader#loader
+      .loader-fruits
+        span.loader-fruit 🍊
+        span.loader-fruit 🍇
+        span.loader-fruit 🍓
+        span.loader-fruit 🥭
+      .loader-bar
+
+    include partials/navbar
+
+    main
+      block content
+
+    include partials/footer
+
+    button.chat-fab#chatFab(aria-label="Chat tu van") 🤖
+
+    .chat-win#chatWin
+      .chat-head
+        .chat-head-info
+          .chat-head-ava 🌿
+          div
+            p.chat-head-name NCCFOODS AI
+            p.chat-head-status Online · Tư vấn dinh dưỡng
+        button.chat-close-btn#chatCloseBtn ✕
+      .chat-msgs#chatMsgs
+        .chat-msg.bot Xin chào! 🍊 Tôi là NCCFOODS — trợ lý dinh dưỡng cửa NCCFOODS. Bạn muốn tư vấn về loại quả nào, chế độ ăn uống hay sức khỏe?
+        .chat-typing#chatTyping
+          .typing-dot
+          .typing-dot
+          .typing-dot
+      .chat-input-wrap
+        textarea.chat-textarea#chatInput(placeholder="Hoi ve dinh duong, hoa qua..." rows="1")
+        button.chat-send-btn#chatSend ➤
+
+    .toast#toast
+      span#toastMsg Thêm vào giở hàng!
+
+    script(src="/js/main.js")
+    block scripts
