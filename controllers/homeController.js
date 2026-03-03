@@ -74,7 +74,7 @@ exports.getHome = async (req, res) => {
   }
 
   const [featured, categories] = await Promise.all([
-    Product.find({ isActive: 1, isFeatured: 1 }).limit(20).lean(),
+    Product.find({ isActive: 1, isFeatured: 1 },'_id emoji badge unit origin name price image slug').limit(20).lean(),
     Category.find({ isActive: 1 }).lean()
   ])
 
