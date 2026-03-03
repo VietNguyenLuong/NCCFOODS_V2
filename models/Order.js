@@ -39,7 +39,7 @@ orderSchema.index({ status: 1, createdAt: 1  })
 orderSchema.index({ user: 1, createdAt: -1   })
 // Dashboard aggregate theo tháng
 orderSchema.index({ createdAt: -1             })
-// Tra cứu đơn hàng
-orderSchema.index({ orderCode: 1              })
+// Tra cứu đơn hàng — unique:true trên field đã tạo index, không cần khai báo lại
+// orderSchema.index({ orderCode: 1 })
 
 module.exports = mongoose.model('Order', orderSchema)

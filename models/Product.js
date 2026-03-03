@@ -22,8 +22,6 @@ const productSchema = new mongoose.Schema({
   isActive:    { type: Boolean, default: true }
 }, { timestamps: true })
 
-// Hot path: detail page
-productSchema.index({ slug: 1 })
 // List page: filter theo danh mục
 productSchema.index({ isActive: 1, category: 1 })
 // Trang chủ: sort mới nhất
