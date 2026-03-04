@@ -7,7 +7,6 @@ const compression  = require('compression')
 const rateLimit    = require('express-rate-limit')
 const connectDB    = require('./config/db')
 const { loadUser } = require('./middleware/auth')
-const rateLimit = require("express-rate-limit")
 const app = express()
 connectDB()
 // limit chung
