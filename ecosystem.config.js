@@ -1,62 +1,50 @@
 /**
- * PM2 Ecosystem Config — FruitShop
+ * PM2 Ecosystem — FruitShop
+ * Tối ưu cho VPS 2 core / 2GB RAM, mục tiêu 500 user online
  *
- * Cách dùng:
- *   npm install -g pm2
- *   pm2 start ecosystem.config.js
- *   pm2 logs fruitshop
- *   pm2 monit
- *   pm2 stop fruitshop
- *   pm2 delete fruitshop
- *
- * Xem số CPU hiện có:
- *   node -e "console.log(require('os').cpus().length)"
+ * Lệnh:
+ *   pm2 start ecosystem.config.js --env production
+ *   pm2 reload fruitshop        ← zero-downtime reload
+ *   pm2 monit                   ← xem CPU/RAM realtime
  */
-
 module.exports = {
   apps: [{
-    name:   'fruitshop',
-    script: 'app.js',
+    name:      'fruitshop',
+    script:    'app.js',
 
-    // ── Cluster Mode ──────────────────────────────────────
-    // 'max' = tự detect số CPU và spawn đúng đó process
-    // Ví dụ: VPS 2 core → 2 workers, 4 core → 4 workers
-    // Mỗi worker xử lý requests độc lập → throughput tăng tuyến tính
-    instances:    'max',
+    // ── Cluster: 2 workers = 2 cores ─────────────────────
+    instances:    2,         // hardcode 2 thay vì 'max' — chắc chắn hơn
     exec_mode:    'cluster',
 
     // ── Environment ───────────────────────────────────────
     env_production: {
-      NODE_ENV:   'production',
-      PORT:       3000,
-    },
-    env_development: {
-      NODE_ENV:   'development',
-      PORT:       3000,
+      NODE_ENV:         'production',
+      PORT:             3000,
+      MONGO_POOL_SIZE:  15,   // 2 workers × 15 = 30 total connections
     },
 
-    // ── Auto-restart ──────────────────────────────────────
-    watch:          false,        // không watch file trong production
-    max_memory_restart: '400M',   // restart worker nếu dùng > 400MB RAM
-    restart_delay:  3000,         // chờ 3s trước khi restart
-    max_restarts:   10,           // tối đa 10 restart liên tiếp rồi stop
+    // ── Memory guard — VPS không có swap! ─────────────────
+    // Worker dùng > 350MB → restart ngay tránh OOM kill cả server
+    max_memory_restart: '350M',
 
-    // ── Logs ─────────────────────────────────────────────
-    error_file:   './logs/pm2-error.log',
-    out_file:     './logs/pm2-out.log',
-    merge_logs:   true,           // gộp log của tất cả workers vào 1 file
+    // ── Node.js heap limit ────────────────────────────────
+    // RAM: 2GB total, 2 workers → mỗi worker tối đa ~350MB heap
+    node_args: '--max-old-space-size=350',
+
+    // ── Stability ─────────────────────────────────────────
+    watch:          false,
+    restart_delay:  2000,    // 2s trước khi restart
+    max_restarts:   5,       // 5 lần liên tiếp → stop (báo lỗi nghiêm trọng)
+    min_uptime:     '10s',   // phải chạy 10s mới tính là stable restart
+
+    // ── Logs ──────────────────────────────────────────────
+    error_file:      './logs/pm2-error.log',
+    out_file:        './logs/pm2-out.log',
+    merge_logs:      true,
     log_date_format: 'YYYY-MM-DD HH:mm:ss',
 
-    // ── Graceful Reload ───────────────────────────────────
-    // pm2 reload fruitshop → zero-downtime reload
-    // Worker cũ tiếp tục xử lý request đang dở, worker mới lên nhận request mới
-    kill_timeout:   5000,         // cho 5s để finish request đang xử lý
-    listen_timeout: 10000,        // worker phải ready trong 10s
-
-    // ── Sticky Sessions ───────────────────────────────────
-    // Đảm bảo user luôn được route đến cùng 1 worker
-    // → session in-memory hoạt động đúng trong cluster mode
-    // Nếu dùng Redis store thì bỏ dòng này
-    node_args: ['--max-old-space-size=400'],
+    // ── Graceful shutdown ─────────────────────────────────
+    kill_timeout:    5000,   // 5s để finish request đang xử lý
+    listen_timeout:  8000,
   }]
 }

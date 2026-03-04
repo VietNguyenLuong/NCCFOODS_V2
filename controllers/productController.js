@@ -2,36 +2,31 @@ const Product  = require('../models/Product')
 const Category = require('../models/Category')
 const cache    = require('../middleware/cache')
 
-const TTL_CAT     = 300   // categories: 5 phút
-const TTL_HOME    = 60    // featured: 1 phút
-const TTL_LIST    = 30    // product list: 30 giây
-const TTL_DETAIL  = 120   // product detail: 2 phút
+// TTL tăng lên để giảm DB queries khi 500 user — 2 workers × ít queries hơn
+const TTL_CAT     = 600   // categories: 10 phút — gần như không đổi
+const TTL_HOME    = 120   // featured: 2 phút
+const TTL_LIST    = 60    // product list: 1 phút
+const TTL_DETAIL  = 300   // product detail: 5 phút
 
 async function getActiveCategories() {
-  const hit = cache.get('categories:active')
-  if (hit) return hit
-  const cats = await Category
-    .find({ isActive: true })
-    .select('name slug emoji')
-    .lean()
-  cache.set('categories:active', cats, TTL_CAT)
-  return cats
+  return cache.getOrSet('categories:active', () =>
+    Category.find({ isActive: true }).select('name slug emoji').lean()
+  , TTL_CAT)
 }
 
 // GET /
 exports.getHome = async (req, res) => {
-  let featured = cache.get('products:featured')
-  if (!featured) {
-    featured = await Product
-      .find({ isActive: true })
-      .select('name slug emoji price unit origin badge image category variants')
-      .sort({ createdAt: -1 })
-      .limit(8)
-      .populate({ path: 'category', select: 'name slug emoji' })
-      .lean()
-    cache.set('products:featured', featured, TTL_HOME)
-  }
-  const categories = await getActiveCategories()
+  const [featured, categories] = await Promise.all([
+    cache.getOrSet('products:featured', () =>
+      Product.find({ isActive: true })
+        .select('name slug emoji price unit origin badge image category variants')
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .populate({ path: 'category', select: 'name slug emoji' })
+        .lean()
+    , TTL_HOME),
+    getActiveCategories()
+  ])
   res.render('pages/home', { title: 'FruitShop - Hoa Qua Tuoi Ngon', featured, categories })
 }
 
@@ -40,26 +35,19 @@ exports.getProducts = async (req, res) => {
   const { cat, q } = req.query
   const cacheKey   = `products:list:${cat || ''}:${q || ''}`
 
-  let products = cache.get(cacheKey)
-  if (!products) {
+  const products = await cache.getOrSet(cacheKey, async () => {
     const filter = { isActive: true }
-
     if (cat) {
       const cats   = await getActiveCategories()
       const catObj = cats.find(c => c.slug === cat)
       filter.category = catObj ? catObj._id : null
     }
-    if (q) {
-      filter.$text = { $search: q }   // dùng text index — không $regex
-    }
-
-    products = await Product
-      .find(filter)
+    if (q) filter.$text = { $search: q }
+    return Product.find(filter)
       .select('name slug emoji price unit origin badge image category variants')
       .populate({ path: 'category', select: 'name slug emoji' })
       .lean()
-    cache.set(cacheKey, products, TTL_LIST)
-  }
+  }, TTL_LIST)
 
   const categories = await getActiveCategories()
   res.render('pages/products', { title: 'San pham', products, categories, currentCat: cat || '', q: q || '' })
