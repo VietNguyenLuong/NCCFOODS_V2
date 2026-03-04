@@ -7,9 +7,31 @@ const compression  = require('compression')
 const rateLimit    = require('express-rate-limit')
 const connectDB    = require('./config/db')
 const { loadUser } = require('./middleware/auth')
-
+const rateLimit = require("express-rate-limit")
 const app = express()
 connectDB()
+// limit chung
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 phút
+  max: 500,
+  standardHeaders: true,
+  legacyHeaders: false
+})
+
+// login limit (chống brute force)
+const loginLimiter = rateLimit({
+ windowMs: 10 * 60 * 1000,  // 10 phút
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+   message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
+})
+
+// order limit
+const orderLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 50
+})
 
 // ── 1. COMPRESSION ────────────────────────────────────────
 // Gzip tất cả responses > 1KB — giảm 60-80% băng thông
@@ -97,14 +119,14 @@ const limiter = rateLimit({
   }
 })
 
-// Login giữ chặt để chống brute-force
-const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,  // 15 phút
-  max:      20,               // 20 lần/15 phút/IP
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-  message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
-})
+// // Login giữ chặt để chống brute-force
+// const loginLimiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,  // 15 phút
+//   max:      20,               // 20 lần/15 phút/IP
+//   standardHeaders: 'draft-7',
+//   legacyHeaders: false,
+//   message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
+// })
 
 app.use(limiter)
 app.use('/auth/login',  loginLimiter)
