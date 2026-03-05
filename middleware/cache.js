@@ -50,9 +50,12 @@ const cache = {
     // Đang có request khác query DB cho key này → chờ kết quả
     if (inflight.has(key)) return inflight.get(key)
 
-    // Lần đầu cache miss → query DB, lưu promise để các request khác chờ
+    // Lần đầu cache miss → query DB
     const promise = fn().then(data => {
-      this.set(key, data, ttlSecs)
+      // KHÔNG cache null/undefined — tránh cache 404 nhầm
+      if (data !== null && data !== undefined) {
+        this.set(key, data, ttlSecs)
+      }
       inflight.delete(key)
       return data
     }).catch(err => {

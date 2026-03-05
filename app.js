@@ -137,7 +137,7 @@ app.use(loadUser)
 // ── 8. ROUTES ─────────────────────────────────────────────
 app.use('/',      require('./routes/shop'))
 app.use('/auth',  require('./routes/auth'))
-// app.use('/',      require('./routes/orders'))
+app.use('/',      require('./routes/orders'))
 app.use('/ai',    require('./routes/ai'))
 app.use('/admin', require('./routes/admin'))
 
