@@ -15,6 +15,6 @@ mixin productCard(p, delay)
       p.product-origin= p.origin || ''
       .product-foot
         .product-price
-          span.price= (p.price/1000).toFixed(0) + '.000d'
+          span.price= (p.price/1000).toFixed(0) + '.000W'
           span.unit / #{p.unit || 'kg'}
         button.add-btn(data-id=p._id || p.id data-name=p.name data-price=p.price data-emoji=p.emoji) +

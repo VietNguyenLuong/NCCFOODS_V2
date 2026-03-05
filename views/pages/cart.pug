@@ -4,7 +4,7 @@ block content
   .page-hero
     .container
       span.section-label
-      h1.page-title 🛒 Gio hang
+      h1.page-title 🛒 Giỏ hàng
 
   section.section
     .container
@@ -12,94 +12,102 @@ block content
         .cart-list#cartList
           .cart-empty#cartEmpty(style="display:none;text-align:center;padding:60px 0")
             p(style="font-size:56px;margin-bottom:12px") 🛒
-            p(style="color:var(--slate);margin-bottom:20px") Gio hang cua ban dang trong
-            a.btn.btn-primary(href="/products") Mua sam ngay
+            p(style="color:var(--slate);margin-bottom:20px") Giỏ hàng của bạn đang trống
+            a.btn.btn-primary(href="/products") Mua sắm ngay
 
         .cart-summary-card
-          p.cs-title Tom tat don hang
+          p.cs-title Tóm tắt đơn hàng
           .cs-row
-            span Tam tinh
-            span#csSubtotal 0d
+            span Tạm tính
+            span#csSubtotal 0W
           .cs-row
-            span Phi giao hang
-            span#csShipping 30.000d
+            span Phí giao hàng
+            span#csShipping 4.000W
           .cs-row.cs-total
-            span Tong cong
-            span#csTotal 0d
-          button.btn.btn-primary.btn-block#btnCheckout(style="margin-top:16px") Thanh toan →
-          p(style="font-size:.75rem;color:var(--slate);text-align:center;margin-top:10px") 🔒 Thanh toan an toan
+            span Tổng cộng
+            span#csTotal 0W
+          button.btn.btn-primary.btn-block#btnCheckout(style="margin-top:16px") Thanh toán →
+          p(style="font-size:.75rem;color:var(--slate);text-align:center;margin-top:10px") 🔒 Thanh toán an toàn
 
   //- CHECKOUT OVERLAY
   .checkout-overlay#checkoutOverlay
     .checkout-modal
       .checkout-head
-        h2 Xac nhan don hang 🌿
+        h2 Xác nhận đơn hàng 🌿
         button.co-close#coClose ✕
 
       form.checkout-body#checkoutForm(enctype="multipart/form-data")
-
         div
-          p.co-section-title 📋 Thong tin nguoi nhan
+          p.co-section-title 📋 Thông tin người nhận
           .form-row
             .form-group
-              label Ho va ten *
+              label Ngân hàng : HANA
+            .form-group
+              label Số tài khoản: 371-910026-22104
+          .form-group
+            label Người hưởng thụ: 주식회사 끄엉엔씨푸르트무역
+        div
+          p.co-section-title 📋 Thông tin người nhận
+          .form-row
+            .form-group
+              label Họ và tên *
               input#coName(type="text" name="customerName" placeholder="Nguyen Van A" required)
             .form-group
-              label So dien thoai *
+              label Số điện thoại *
               input#coPhone(type="tel" name="phone" placeholder="0912 345 678" required)
           .form-group
-            label Dia chi giao hang *
+            label Địa chỉ giao hàng *
             input#coAddress(type="text" name="address" placeholder="So nha, duong, quan, tinh..." required)
 
         div
-          p.co-section-title 🧾 Chi tiet don hang
+          p.co-section-title 🧾 Chi tiết đơn hàng
           .order-table-wrap
             table.order-table
               thead
                 tr
-                  th San pham
+                  th Sản phẩm
                   th SL
-                  th Don gia
-                  th Thanh tien
+                  th Đơn giá
+                  th Thành tiền
               tbody#orderTableBody
               tfoot
                 tr
-                  td(colspan="3") Phi giao hang
-                  td#tfShipping 30.000d
+                  td(colspan="3") Phí giao hàng
+                  td#tfShipping 4.000W
                 tr.total-row
-                  td(colspan="3") TONG CONG
-                  td#tfTotal 0d
+                  td(colspan="3") TỔNG CỘNG
+                  td#tfTotal 0W
           .form-group(style="margin-top:14px")
-            label Chi tiet (tu dong tao - khong can dau)
+            label Chi tiết (tự động tạo - không cần dấu)
             textarea#orderSummaryText(name="orderSummary" readonly)
-
+            label Để shop hỗ trợ mình nhanh hơn và chính xác hơn, anh/chị vui lòng copy nội dung đơn hàng và gửi trực tiếp vào inbox Facebook giúp shop nha.Bên shop sẽ kiểm tra, xác nhận đơn và tư vấn chi tiết cho mình ngay ạ ❤️.Cảm ơn anh/chị đã tin tưởng và liên hệ với shop
         div
-          p.co-section-title 💳 Bill chuyen khoan (bat buoc)
+          p.co-section-title 💳 Bill chuyển khoản (bắt buộc)
           .bill-upload#billUploadArea
             span.bill-upload-icon 📎
-            p.bill-upload-text Nhap anh bill chuyen khoan
-            p.bill-upload-hint JPG, PNG · toi da 5MB · Bat buoc
+            p.bill-upload-text Nhập ảnh bill chuyển khoản
+            p.bill-upload-hint JPG, PNG · toi da 5MB · Bắt buộc
             input#billFile(type="file" name="billImage" accept="image/*" required)
           .bill-preview#billPreview
             img#billImg(src="" alt="preview")
             button.bill-rm#billRm(type="button") ✕
 
         .co-actions
-          button.btn.btn-ghost(type="button" id="coBack") ← Quay lai
+          button.btn.btn-ghost(type="button" id="coBack") ← Quay lại
           button.btn.btn-primary(type="submit" id="coSubmit")
-            span#submitLabel 🛒 Xac nhan dat hang
+            span#submitLabel 🛒 Xác nhận đặt hàng
             span.spin#submitSpin(style="display:none") ⏳
 
   //- SUCCESS
   .success-overlay#successOverlay
     .success-modal
       span.success-icon 🎉
-      h2.success-title Dat hang thanh cong!
-      p.success-desc Don hang da duoc tiep nhan. Chung toi se lien he xac nhan trong 30 phut.
+      h2.success-title Đặt hàng thành công!
+      p.success-desc Đơn hàng đã được tiếp nhận!
       p.success-code#successCode
       .success-acts
-        a.btn.btn-primary(href="/products") Tiep tuc mua
-        a.btn.btn-ghost(href="/") Ve trang chu
+        a.btn.btn-primary(href="/products") Tiếp tục mua
+        a.btn.btn-ghost(href="/") Về trang chủ
 
 block scripts
   script.
@@ -129,9 +137,9 @@ block scripts
     }
 
     function updateSummary(sub) {
-      const ship = sub >= 300000 ? 0 : 30000
+      const ship = sub >= 45000 ? 0 : 4000
       document.getElementById('csSubtotal').textContent = fmt(sub)
-      document.getElementById('csShipping').textContent = ship===0 ? 'Mien phi 🎉' : fmt(ship)
+      document.getElementById('csShipping').textContent = ship===0 ? 'Miễn phí 🎉' : fmt(ship)
       document.getElementById('csTotal').textContent    = fmt(sub+ship)
     }
 
@@ -156,17 +164,17 @@ block scripts
       const tbody = document.getElementById('orderTableBody')
       let rows = '', txt = 'DON HANG FRUITSHOP\n========================\n'
       const sub  = cart.reduce((s,i) => s+i.price*i.qty, 0)
-      const ship = sub >= 300000 ? 0 : 30000
+      const ship = sub >= 45000 ? 0 : 4000
       cart.forEach(i => {
-        rows += '<tr><td>' + i.emoji + ' ' + i.name + '</td><td>' + i.qty + '</td><td>' + fmt(i.price) + '</td><td>' + fmt(i.price*i.qty) + '</td></tr>'
-        txt  += i.name + ' x' + i.qty + ' = ' + (i.price*i.qty/1000).toFixed(0) + '.000d\n'
+        rows += '<tr><td>' + i.emoji + ' ' +removeVietnameseTones(i.name) + '</td><td>' + i.qty + '</td><td>' + fmt(i.price) + '</td><td>' + fmt(i.price*i.qty) + '</td></tr>'
+        txt  += removeVietnameseTones(i.name) + ' x' + i.qty + ' = ' + (i.price*i.qty/1000).toFixed(0) + '.000W\n'
       })
       txt += '------------------------\n'
-      txt += 'Ship: ' + (ship===0?'Mien phi':(ship/1000).toFixed(0)+'.000d') + '\n'
-      txt += 'TONG: ' + ((sub+ship)/1000).toFixed(0) + '.000d'
+      txt += 'Ship: ' + (ship===0?'Mien phi':(ship/1000).toFixed(0)+'.000W') + '\n'
+      txt += 'TONG: ' + ((sub+ship)/1000).toFixed(0) + '.000W'
 
       tbody.innerHTML = rows
-      document.getElementById('tfShipping').textContent = ship===0?'Mien phi':fmt(ship)
+      document.getElementById('tfShipping').textContent = ship===0?'Miễn phí':fmt(ship)
       document.getElementById('tfTotal').textContent    = fmt(sub+ship)
       document.getElementById('orderSummaryText').value = txt
 
@@ -217,10 +225,10 @@ block scripts
           closeCheckout()
           localStorage.removeItem('fs-cart')
           updateCartCount()
-          document.getElementById('successCode').textContent = 'Ma don: ' + data.orderId
+          document.getElementById('successCode').textContent = 'Mã đơn: ' + data.orderId
           document.getElementById('successOverlay').classList.add('show')
-        } else { alert(data.message || 'Co loi xay ra!') }
-      } catch { alert('Loi ket noi!') }
+        } else { alert(data.message || 'Có lỗi xảy ra!') }
+      } catch { alert('Lỗi kết nối!') }
       finally {
         document.getElementById('submitLabel').style.display = 'inline'
         document.getElementById('submitSpin').style.display = 'none'

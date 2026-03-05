@@ -2,14 +2,14 @@ extends ../layout
 block content
   .page-hero
     .container
-      h1.page-title Don hang cua toi
+      h1.page-title Đơn hàng của tôi
   section.section
     .container
       if !orders.length
         .cart-empty(style="text-align:center;padding:60px 0")
           p(style="font-size:48px;margin-bottom:12px") 📦
-          p(style="color:var(--slate);margin-bottom:20px") Ban chua co don hang nao
-          a.btn.btn-primary(href="/products") Mua hang ngay
+          p(style="color:var(--slate);margin-bottom:20px") Bạn chưa có đơn hàng nào!
+          a.btn.btn-primary(href="/products") Mua hàng ngày
       else
         each o in orders
           .my-order-card
@@ -19,4 +19,14 @@ block content
               p(style="font-size:.82rem;color:var(--slate)")= new Date(o.createdAt).toLocaleDateString('vi-VN')
             div(style="text-align:right")
               span.status-b(class='sb-'+o.status style="display:inline-block;padding:5px 14px;border-radius:99px;font-size:.72rem;font-weight:700")= o.status
-              p(style="font-family:var(--font-display);font-size:1.3rem;font-weight:900;color:var(--jade);margin-top:8px")= (o.total/1000).toFixed(0) + '.000d'
+              p(style="font-family:var(--font-display);font-size:1.3rem;font-weight:900;color:var(--jade);margin-top:8px")= (o.total/1000).toFixed(0) + '.000W'
+              if o.status == 'Chờ xác nhận'
+                button.btn.btn-primary.btn-sm(onclick="del('" + o._id + "')") Hủy
+block scripts
+  script.
+    async function del(id) {
+      if (!confirm('Hủy đơn này?')) return
+      const r=await api('/admin/orders/'+id+'/usercancel',{})
+      if(r.success){atoast('Đã hủy đồ!','ok');setTimeout(()=>location.reload(),700)}
+      else atoast(r.message || 'Loi!', 'err')
+    }

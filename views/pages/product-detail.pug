@@ -6,9 +6,9 @@ block content
     .container(style="max-width:1000px")
 
       p.breadcrumb
-        a(href="/") Trang chu
+        a(href="/") Trang chủ
         span.bc-sep  /
-        a(href="/products") San pham
+        a(href="/products") Sản phẩm
         span.bc-sep  /
         span.bc-cur= product.name
 
@@ -22,7 +22,7 @@ block content
               .product-emoji-wrap
                 span(style="font-size:130px;filter:drop-shadow(0 12px 28px rgba(0,0,0,.1))") #{product.emoji || '🍎'}
           if product.image
-            p.img-badge ✓ Anh thuc te san pham
+            p.img-badge ✓ Ảnh thực tế sản phẩm
 
         //- THONG TIN + VARIANTS
         .detail-right
@@ -37,7 +37,7 @@ block content
           h1.detail-title= product.name
 
           if product.origin
-            p.detail-origin 📍 Xuat xu: #{product.origin}
+            p.detail-origin 📍 Xuất xứ: #{product.origin}
 
           if product.description
             p.detail-desc= product.description
@@ -46,15 +46,15 @@ block content
           .price-wrap
             span.detail-price#detailPrice
               - const showPrice = product.variants && product.variants.length ? product.variants[0].price : product.price
-              = (showPrice/1000).toFixed(0) + '.000d'
+              = (showPrice/1000).toFixed(0) + '.000W'
             span.detail-unit / #{product.unit || 'kg'}
             if product.variants && product.variants.length
-              span.variant-price-hint  (gia theo loai da chon)
+              span.variant-price-hint  (giá theo loại đã chọn)
 
           //- VARIANTS SELECTOR
           if product.variants && product.variants.length
             .variant-selector
-              p.variant-label Chon loai / size:
+              p.variant-label Chọn loại / size:
               .variant-chips
                 each v, i in product.variants
                   button.variant-chip(
@@ -66,11 +66,11 @@ block content
                     onclick="selectVariant(this)"
                   )
                     span.vc-label= v.label
-                    span.vc-price= (v.price/1000).toFixed(0) + '.000d'
+                    span.vc-price= (v.price/1000).toFixed(0) + '.000W'
 
           //- QTY
           .qty-row
-            label(style="font-size:.85rem;font-weight:700;color:var(--ink)") So luong:
+            label(style="font-size:.85rem;font-weight:700;color:var(--ink)") Số lượng:
             .qty-control
               button.qty-btn(onclick="adj(-1)") −
               input#qtyInput(type="number" min="1" value="1")
@@ -84,8 +84,8 @@ block content
               data-price=(product.variants && product.variants.length ? product.variants[0].price : product.price)
               data-emoji=product.emoji
               data-has-variants=(product.variants && product.variants.length ? 'true' : 'false')
-            ) 🛒 Them vao gio
-            a.btn.btn-outline(href="/cart") Xem gio hang →
+            ) 🛒 Thêm vào giỏ
+            a.btn.btn-outline(href="/cart") Xem giỏ hàng →
 
           .trust-row
             each badge in [['✓','Hoa qua tuoi'],['🚚','Giao 24h'],['💯','Hoan tien 100%']]
@@ -96,8 +96,8 @@ block content
       //- SAN PHAM LIEN QUAN
       if related.length
         .related-section
-          h2.related-title San pham tuong tu
-          .products-grid(style="grid-template-columns:repeat(4,1fr)")
+          h2.related-title Sản phẩm tương tự
+          .products-grid
             each p in related
               +productCard(p, 0)
 
@@ -107,11 +107,15 @@ block scripts
     let selectedVariant = null
     const hasVariants = document.getElementById('addDetailBtn').dataset.hasVariants === 'true'
 
-    - if (product.variants && product.variants.length)
-    |     selectedVariant = { price: !{product.variants[0].price}, label: '!{product.variants[0].label}', id: '!{product.variants[0]._id}' }
+    if (!{product.variants && product.variants.length}) {
+      selectedVariant = {
+        price: !{product.variants && product.variants.length ? product.variants[0].price : 0},
+        label: "!{product.variants && product.variants.length ? product.variants[0].label : ''}",
+        id: "!{product.variants && product.variants.length ? product.variants[0]._id : ''}"
+      }
+    }
 
-    function selectVariant(btn) {
-      // Deactivate all chips
+    window.selectVariant = function(btn) {
       document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('active'))
       btn.classList.add('active')
 
@@ -119,17 +123,12 @@ block scripts
       const label = btn.dataset.label
       selectedVariant = { price, label, id: btn.dataset.vid }
 
-      // Update displayed price
       const priceEl = document.getElementById('detailPrice')
-      priceEl.textContent = (price/1000).toFixed(0) + '.000d'
-      priceEl.classList.add('bump')
-      setTimeout(() => priceEl.classList.remove('bump'), 300)
+      priceEl.textContent = (price/1000).toFixed(0) + '.000W'
 
-      // Update add button data
       const addBtn = document.getElementById('addDetailBtn')
       addBtn.dataset.price = price
     }
-
     function adj(d) {
       const inp = document.getElementById('qtyInput')
       inp.value = Math.max(1, parseInt(inp.value || 1) + d)
@@ -150,5 +149,5 @@ block scripts
       else cart.push({ id: cartId, productId: id, name: cartName, price, emoji, qty, variant: selectedVariant?.label || '' })
       localStorage.setItem('fs-cart', JSON.stringify(cart))
       updateCartCount()
-      showToast(emoji + ' ' + cartName + ' x' + qty + ' da vao gio!')
+      showToast(emoji + ' ' + cartName + ' x' + qty + ' đã vào giỏ!')
     })

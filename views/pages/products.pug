@@ -4,14 +4,14 @@ include ../partials/product-card
 block content
   .page-hero
     .container
-      span.section-label San pham
-      h1.page-title Tat ca hoa qua
-      p.page-sub Tuyen chon ky, giao tan noi, dam bao tuoi ngon.
+      span.section-label Sản phẩm
+      h1.page-title Tất cả sản phẩm
+      p.page-sub Tuyển chọn kỹ, giao tận nơi, đảm bảo chất lượng.
 
   section.section
     .container
       .filter-row
-        a.filter-tab(href="/products" class=(!currentCat?'active':'')) 🌟 Tat ca
+        a.filter-tab(href="/products" class=(!currentCat?'active':'')) 🌟 TẤT CẢ
         each c in categories
           a.filter-tab(href=`/products?cat=${c.slug}` class=(currentCat===c.slug?'active':''))
             = c.emoji + ' ' + c.name
@@ -23,5 +23,5 @@ block content
       else
         .cart-empty(style="text-align:center;padding:60px 0")
           p(style="font-size:48px;margin-bottom:12px") 🔍
-          p(style="color:var(--slate)") Khong tim thay san pham nao
-          a.btn.btn-primary(href="/products" style="margin-top:20px") Xem tat ca
+          p(style="color:var(--slate)") Không tìm thấy sản phẩm nào
+          a.btn.btn-primary(href="/products" style="margin-top:20px") Xem tất cả

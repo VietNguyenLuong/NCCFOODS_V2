@@ -14,7 +14,7 @@ exports.postLogin = async (req, res) => {
       .findOne({ email: email.toLowerCase() })
       .select('name email password role isActive')
       .lean()
-
+console.log('User found:', user?.email)
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.render('pages/login', { title: 'Dang nhap', error: 'Email hoac mat khau khong dung', flash: null })
     }
@@ -24,6 +24,7 @@ exports.postLogin = async (req, res) => {
     req.session.userId = user._id.toString()
     req.session.role   = user.role
     req.session.name   = user.name
+    console.log('Session set:', req.session)
     const returnTo = req.session.returnTo || '/'
     delete req.session.returnTo
     res.redirect(returnTo)
