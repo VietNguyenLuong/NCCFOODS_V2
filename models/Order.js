@@ -18,9 +18,9 @@ const orderSchema = new mongoose.Schema({
   orderSummary: String,
   billImage:    String,
   subtotal:     { type: Number, default: 0 },
-  shipping:     { type: Number, default: 30000 },
+  shipping:     { type: Number, default: 4000 },
   total:        { type: Number, default: 0 },
-  status:       { type: String, enum: ['pending','confirmed','shipped','cancelled'], default: 'pending' },
+  status:       { type: String, enum: ['Chờ xác nhận','Đang lên đơn','Đã gửi','Từ chối','Khách hàng hủy'], default: 'Chờ xác nhận' },
   statusBefore: String,
   confirmedAt:  Date,
   shippedAt:    Date

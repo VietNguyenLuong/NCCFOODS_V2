@@ -32,7 +32,7 @@ block content
 
           if product.badge
             span.p-badge(class=product.badge style="display:inline-block;margin:8px 0 12px")
-              = product.badge === 'new' ? 'MOI' : product.badge === 'hot' ? 'HOT 🔥' : 'SALE'
+              = product.badge === 'new' ? 'MỚI' : product.badge === 'hot' ? 'HOT 🔥' : 'SALE'
 
           h1.detail-title= product.name
 
@@ -42,17 +42,18 @@ block content
           if product.description
             p.detail-desc= product.description
 
-          //- PRICE DISPLAY
+          -
+            const hasVariants = product.variants && product.variants.length > 0
+            const firstVariant = hasVariants ? product.variants[0] : null
+            const initPrice = hasVariants ? firstVariant.price : product.price
+
           .price-wrap
-            span.detail-price#detailPrice
-              - const showPrice = product.variants && product.variants.length ? product.variants[0].price : product.price
-              = (showPrice/1000).toFixed(0) + '.000W'
+            span.detail-price#detailPrice= (initPrice/1000).toFixed(0) + '.000đ'
             span.detail-unit / #{product.unit || 'kg'}
-            if product.variants && product.variants.length
+            if hasVariants
               span.variant-price-hint  (giá theo loại đã chọn)
 
-          //- VARIANTS SELECTOR
-          if product.variants && product.variants.length
+          if hasVariants
             .variant-selector
               p.variant-label Chọn loại / size:
               .variant-chips
@@ -61,14 +62,13 @@ block content
                     type="button"
                     data-price=v.price
                     data-label=v.label
-                    data-vid=v._id
+                    data-vid=String(v._id)
                     class=(i === 0 ? 'active' : '')
                     onclick="selectVariant(this)"
                   )
                     span.vc-label= v.label
-                    span.vc-price= (v.price/1000).toFixed(0) + '.000W'
+                    span.vc-price= (v.price/1000).toFixed(0) + '.000đ'
 
-          //- QTY
           .qty-row
             label(style="font-size:.85rem;font-weight:700;color:var(--ink)") Số lượng:
             .qty-control
@@ -76,25 +76,22 @@ block content
               input#qtyInput(type="number" min="1" value="1")
               button.qty-btn(onclick="adj(1)") +
 
-          //- ACTIONS
           .detail-actions
             button.btn.btn-primary#addDetailBtn(
-              data-id=product._id
+              data-id=String(product._id)
               data-name=product.name
-              data-price=(product.variants && product.variants.length ? product.variants[0].price : product.price)
+              data-price=initPrice
               data-emoji=product.emoji
-              data-has-variants=(product.variants && product.variants.length ? 'true' : 'false')
             ) 🛒 Thêm vào giỏ
             a.btn.btn-outline(href="/cart") Xem giỏ hàng →
 
           .trust-row
-            each badge in [['✓','Hoa qua tuoi'],['🚚','Giao 24h'],['💯','Hoan tien 100%']]
+            each badge in [['✓','Hoa quả tươi'],['🚚','Giao 24h'],['💯','Hoàn tiền 100%']]
               .trust-item
                 span= badge[0]
                 |  #{badge[1]}
 
-      //- SAN PHAM LIEN QUAN
-      if related.length
+      if related && related.length
         .related-section
           h2.related-title Sản phẩm tương tự
           .products-grid
@@ -103,50 +100,39 @@ block content
 
 block scripts
   script.
-    // Selected variant tracking
-    let selectedVariant = null
-    const hasVariants = document.getElementById('addDetailBtn').dataset.hasVariants === 'true'
-
-    if (!{product.variants && product.variants.length}) {
-      selectedVariant = {
-        price: !{product.variants && product.variants.length ? product.variants[0].price : 0},
-        label: "!{product.variants && product.variants.length ? product.variants[0].label : ''}",
-        id: "!{product.variants && product.variants.length ? product.variants[0]._id : ''}"
-      }
-    }
+    var selectedVariant = !{JSON.stringify(firstVariant ? { price: firstVariant.price, label: firstVariant.label, id: String(firstVariant._id) } : null)};
 
     window.selectVariant = function(btn) {
-      document.querySelectorAll('.variant-chip').forEach(c => c.classList.remove('active'))
+      document.querySelectorAll('.variant-chip').forEach(function(c) { c.classList.remove('active') })
       btn.classList.add('active')
-
-      const price = parseInt(btn.dataset.price)
-      const label = btn.dataset.label
-      selectedVariant = { price, label, id: btn.dataset.vid }
-
-      const priceEl = document.getElementById('detailPrice')
-      priceEl.textContent = (price/1000).toFixed(0) + '.000W'
-
-      const addBtn = document.getElementById('addDetailBtn')
-      addBtn.dataset.price = price
+      var price = parseInt(btn.dataset.price)
+      selectedVariant = { price: price, label: btn.dataset.label, id: btn.dataset.vid }
+      document.getElementById('detailPrice').textContent = (price/1000).toFixed(0) + '.000W'
+      document.getElementById('addDetailBtn').dataset.price = price
     }
+
     function adj(d) {
-      const inp = document.getElementById('qtyInput')
+      var inp = document.getElementById('qtyInput')
       inp.value = Math.max(1, parseInt(inp.value || 1) + d)
     }
 
     document.getElementById('addDetailBtn').addEventListener('click', function() {
-      const qty   = parseInt(document.getElementById('qtyInput').value) || 1
-      const { id, name, emoji } = this.dataset
-      const price = parseInt(this.dataset.price)
+      var qty   = parseInt(document.getElementById('qtyInput').value) || 1
+      var id    = this.dataset.id
+      var name  = this.dataset.name
+      var emoji = this.dataset.emoji
+      var price = parseInt(this.dataset.price)
 
-      // Build cart item — include variant label in name if applicable
-      const cartName = selectedVariant ? name + ' (' + selectedVariant.label + ')' : name
-      const cartId   = selectedVariant ? id + '_' + selectedVariant.id : id
+      var cartName = selectedVariant ? name + ' (' + selectedVariant.label + ')' : name
+      var cartId   = selectedVariant ? id + '_' + selectedVariant.id : id
 
-      const cart = JSON.parse(localStorage.getItem('fs-cart') || '[]')
-      const ex   = cart.find(c => c.id === cartId)
-      if (ex) ex.qty += qty
-      else cart.push({ id: cartId, productId: id, name: cartName, price, emoji, qty, variant: selectedVariant?.label || '' })
+      var cart = JSON.parse(localStorage.getItem('fs-cart') || '[]')
+      var ex   = cart.find(function(c) { return c.id === cartId })
+      if (ex) {
+        ex.qty += qty
+      } else {
+        cart.push({ id: cartId, productId: id, name: cartName, price: price, emoji: emoji, qty: qty, variant: selectedVariant ? selectedVariant.label : '' })
+      }
       localStorage.setItem('fs-cart', JSON.stringify(cart))
       updateCartCount()
       showToast(emoji + ' ' + cartName + ' x' + qty + ' đã vào giỏ!')

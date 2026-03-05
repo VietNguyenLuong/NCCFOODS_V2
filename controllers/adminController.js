@@ -178,9 +178,9 @@ const orderList = (status) => async (req, res) => {
   const views  = { pending: 'admin/orders-pending', confirmed: 'admin/orders-confirmed', shipped: 'admin/orders-shipped' }
   res.render(views[status], { title: 'Don hang', admin: req.session, orders, currentPage: status, from: from||'', to: to||'' })
 }
-exports.getPendingOrders   = orderList('pending')
-exports.getConfirmedOrders = orderList('confirmed')
-exports.getShippedOrders   = orderList('shipped')
+exports.getPendingOrders   = orderList('Chờ xác nhận')
+exports.getConfirmedOrders = orderList('Đang lên đơn')
+exports.getShippedOrders   = orderList('Đã gửi')
 
 exports.getOrderDetail = async (req, res) => {
   const order = await Order.findById(req.params.id).lean()
@@ -192,8 +192,8 @@ exports.getOrderDetail = async (req, res) => {
 // findOneAndUpdate = 1 round-trip thay vì findById + findByIdAndUpdate
 exports.confirmOrder = async (req, res) => {
   const doc = await Order.findOneAndUpdate(
-    { _id: req.params.id, status: 'pending' },
-    { status: 'confirmed', confirmedAt: new Date() },
+    { _id: req.params.id, status: 'Chờ xác nhận' },
+    { status: 'Đang lên đơn', confirmedAt: new Date() },
     { new: false }
   ).lean()
   if (!doc) return res.json({ success: false, message: 'Don hang khong hop le' })
@@ -203,8 +203,8 @@ exports.confirmOrder = async (req, res) => {
 
 exports.shipOrder = async (req, res) => {
   const doc = await Order.findOneAndUpdate(
-    { _id: req.params.id, status: 'confirmed' },
-    { status: 'shipped', shippedAt: new Date() },
+    { _id: req.params.id, status: 'Đang lên đơn' },
+    { status: 'Đã gửi', shippedAt: new Date() },
     { new: false }
   ).lean()
   if (!doc) return res.json({ success: false, message: 'Don hang khong hop le' })

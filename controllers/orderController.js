@@ -25,7 +25,7 @@ exports.createOrder = async (req, res) => {
     try { cartItems = JSON.parse(cartData || '[]') } catch {}
 
     const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0)
-    const shipping = subtotal >= 300000 ? 0 : 30000
+    const shipping = subtotal >= 45000 ? 0 : 4000
 
     const order = new Order({
       user:         req.session?.userId || null,

@@ -152,3 +152,26 @@ document.querySelector('.newsletter-form')?.addEventListener('submit', e => {
 
 /* Init */
 updateCartCount()
+
+function removeVietnameseTones(str) {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+}
+
+  async function api(url,body) {
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  return r.json()
+}
+function atoast(msg,type='ok') {
+  const t=document.getElementById('aToast'); if(!t) return
+  document.getElementById('aToastMsg').textContent = (type==='ok'?'✓ ':'✕ ')+msg
+  t.className='a-toast '+type; t.classList.add('show')
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2500)
+}
+function toggleUserMenu() {
+    const menu = document.getElementById("userDropdown");
+    menu.style.display = menu.style.display === "none" ? "block" : "none";
+  }
