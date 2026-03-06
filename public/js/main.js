@@ -150,6 +150,7 @@ document.querySelector('.newsletter-form')?.addEventListener('submit', e => {
   setTimeout(() => { btn.textContent='Dang ky'; btn.style.background='' }, 3000)
 })
 
+
 /* Init */
 updateCartCount()
 
