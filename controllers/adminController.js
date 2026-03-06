@@ -173,11 +173,21 @@ const orderList = (status) => async (req, res) => {
     if (from) filter.createdAt.$gte = new Date(from)
     if (to)   filter.createdAt.$lte = new Date(new Date(to).setHours(23,59,59))
   }
-  // Dùng compound index { status, createdAt }
+
+  // Dòng này bị mất — phải có
   const orders = await Order.find(filter).select(ORDER_SELECT).sort({ createdAt: -1 }).lean()
-  const views  = { pending: 'admin/orders-pending', confirmed: 'admin/orders-confirmed', shipped: 'admin/orders-shipped' }
-  res.render(views[status], { title: 'Don hang', admin: req.session, orders, currentPage: status, from: from||'', to: to||'' })
+
+  const views = {
+    'Chờ xác nhận': 'admin/orders-pending',
+    'Đang lên đơn': 'admin/orders-confirmed',
+    'Đã gửi':       'admin/orders-shipped'
+  }
+  const view = views[status]
+  if (!view) return res.redirect('/admin/orders/pending')
+
+  res.render(view, { title: 'Don hang', admin: req.session, orders, currentPage: status, from: from||'', to: to||'' })
 }
+
 exports.getPendingOrders   = orderList('Chờ xác nhận')
 exports.getConfirmedOrders = orderList('Đang lên đơn')
 exports.getShippedOrders   = orderList('Đã gửi')
@@ -215,7 +225,7 @@ exports.shipOrder = async (req, res) => {
 exports.cancelOrder = async (req, res) => {
   const doc = await Order.findById(req.params.id).select('status').lean()
   if (!doc) return res.json({ success: false })
-  await Order.findByIdAndUpdate(req.params.id, { status: 'cancelled', statusBefore: doc.status })
+  await Order.findByIdAndUpdate(req.params.id, { status: 'Từ chối', statusBefore: doc.status })
   cache.del('admin:dashboard:stats')
   res.json({ success: true })
 }

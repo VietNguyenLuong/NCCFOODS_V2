@@ -2,26 +2,26 @@ extends layout
 block content
   - const currentPage = 'confirmed'
   .p-acts
-    p.p-acts-title Don hang da xac nhan
+    p.p-acts-title Đơn hàng đã xác nhận
     span.s-badge.s-confirmed= orders.length + ' don'
   form.date-filter(method="GET" action="/admin/orders/confirmed")
     input(type="date" name="from" value=from)
     input(type="date" name="to" value=to)
-    button(type="submit") Loc
+    button(type="submit") Lọc
     if from || to
-      a.a-btn.a-btn-cancel(href="/admin/orders/confirmed") Xoa loc
+      a.a-btn.a-btn-cancel(href="/admin/orders/confirmed") Xóa lọc
   .tbl-wrap
     if orders.length
       table.a-table
         thead
           tr
-            th Ma don
-            th Khach hang
+            th Mã đơn
+            th Khách hàng
             th SDT
-            th Dia chi
-            th Tong tien
-            th Xac nhan
-            th Thao tac
+            th Địa chỉ
+            th Tổng tiền
+            th Xác nhận
+            th Thao tác
         tbody
           each o in orders
             tr
@@ -32,13 +32,13 @@ block content
               td= (o.total/1000).toFixed(0) + '.000d'
               td= o.confirmedAt ? new Date(o.confirmedAt).toLocaleDateString('vi-VN') : '-'
               td(style="display:flex;gap:6px;flex-wrap:wrap")
-                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
-                button.a-btn.a-btn-ship(onclick=`doAction('${o._id}','ship')`) Da dong hang
-                button.a-btn.a-btn-cancel(onclick=`doCancel('${o._id}')`) Huy
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiết
+                button.a-btn.a-btn-ship(onclick=`doAction('${o._id}','ship')`) Đã đóng hàng
+                button.a-btn.a-btn-cancel(onclick=`doCancel('${o._id}')`) Hủy
     else
       .empty-state
         span.es-icon 📦
-        p Chua co don nao
+        p Chưa có đơn nào
 
 block scripts
   script.

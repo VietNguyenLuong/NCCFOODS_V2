@@ -2,26 +2,26 @@ extends layout
 block content
   - const currentPage = 'pending'
   .p-acts
-    p.p-acts-title Don hang cho xac nhan
+    p.p-acts-title Đơn hàng chờ xác nhận
     span.s-badge.s-pending= orders.length + ' don'
   form.date-filter(method="GET" action="/admin/orders/pending")
     input(type="date" name="from" value=from)
     input(type="date" name="to" value=to)
-    button(type="submit") Loc
+    button(type="submit") Lọc
     if from || to
-      a.a-btn.a-btn-cancel(href="/admin/orders/pending") Xoa loc
+      a.a-btn.a-btn-cancel(href="/admin/orders/pending") Xóa lọc
   .tbl-wrap
     if orders.length
       table.a-table
         thead
           tr
-            th Ma don
-            th Khach hang
+            th Mã đơn
+            th Khách hàng
             th SDT
-            th Tong tien
+            th Tổng tiền
             th Bill
-            th Ngay dat
-            th Thao tac
+            th Ngày đặt
+            th Thao tác
         tbody
           each o in orders
             tr
@@ -33,15 +33,15 @@ block content
                 if o.billImage
                   a.a-btn.a-btn-view(href=o.billImage target="_blank") Xem bill
                 else
-                  span(style="color:var(--coral);font-size:.74rem") Chua co
+                  span(style="color:var(--coral);font-size:.74rem") Chưa có
               td= new Date(o.createdAt).toLocaleDateString('vi-VN')
               td(style="display:flex;gap:6px;flex-wrap:wrap")
-                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
-                button.a-btn.a-btn-confirm(onclick=`doAction('${o._id}','confirm')`) Xac nhan
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiết
+                button.a-btn.a-btn-confirm(onclick=`doAction('${o._id}','confirm')`) Xác nhận
     else
       .empty-state
         span.es-icon 🎉
-        p Khong co don nao cho xu ly
+        p Không có đơn nào chờ xử lý
 
 block scripts
   script.

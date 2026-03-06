@@ -102,18 +102,20 @@ app.use(session({
 // Rate limit không ảnh hưởng gì đến capacity thật — chỉ ảnh hưởng test tool
 
 const limiter = rateLimit({
-  windowMs: 60 * 1000,   // cửa sổ 1 phút
-  max:      300,         // 300 req/phút/IP = 5 req/s — 1 user thật không bao giờ đạt
+  windowMs: 60 * 1000,
+  max:      300,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  // Dùng IP thực (khi có Nginx/proxy ở trước)
   keyGenerator: (req) => req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip,
   message: { success: false, message: 'Qua nhieu request, vui long thu lai sau.' },
   skip: (req) => {
-    // Bỏ qua static files — không tính vào limit
+    // Bỏ qua static files
     if (req.path.match(/\.(css|js|png|jpg|ico|webp|woff2?)$/)) return true
     // Bỏ qua admin đã đăng nhập
     if (req.path.startsWith('/admin') && req.session?.role === 'admin') return true
+    // Bỏ qua localhost khi test
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip
+    if (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1') return true
     return false
   }
 })

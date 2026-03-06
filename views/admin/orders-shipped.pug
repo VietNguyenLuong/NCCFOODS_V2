@@ -2,19 +2,19 @@ extends layout
 block content
   - const currentPage = 'shipped'
   .p-acts
-    p.p-acts-title Don hang da gui
+    p.p-acts-title Đơn hàng đã gửi
     span.s-badge.s-shipped= orders.length + ' don'
   .tbl-wrap
     if orders.length
       table.a-table
         thead
           tr
-            th Ma don
-            th Khach hang
+            th Mã đơn
+            th Khách hàng
             th SDT
-            th Tong tien
-            th Ngay gui
-            th Thao tac
+            th Tổng tiền
+            th Ngày gửi
+            th Thao tác
         tbody
           each o in orders
             tr
@@ -24,12 +24,12 @@ block content
               td= (o.total/1000).toFixed(0) + '.000d'
               td= o.shippedAt ? new Date(o.shippedAt).toLocaleDateString('vi-VN') : '-'
               td(style="display:flex;gap:6px")
-                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiet
-                button.a-btn.a-btn-restore(onclick=`doRestore('${o._id}')`) Khoi phuc
+                a.a-btn.a-btn-view(href=`/admin/orders/${o._id}`) Chi tiết
+                button.a-btn.a-btn-restore(onclick=`doRestore('${o._id}')`) Khôi phục
     else
       .empty-state
         span.es-icon 🚚
-        p Chua co don nao duoc gui
+        p Chưa có đơn nào được gửi
 
 block scripts
   script.
