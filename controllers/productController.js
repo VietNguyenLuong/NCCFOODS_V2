@@ -26,7 +26,7 @@ exports.getHome = async (req, res) => {
     , TTL_HOME),
     getActiveCategories()
   ])
-  res.render('pages/home', { title: 'FruitShop - Hoa Qua Tuoi Ngon', featured, categories })
+  res.render('pages/home', { title: 'NCCFOODS - Hoa quả tươi ngon', featured, categories })
 }
 
 // GET /products
