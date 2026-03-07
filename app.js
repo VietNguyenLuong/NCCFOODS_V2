@@ -165,12 +165,18 @@ const server = app.listen(PORT, () => {
 
 const shutdown = (signal) => {
   console.log(`\n${signal} received — shutting down gracefully...`)
-  server.close(() => {
-    require('mongoose').connection.close(false, () => {
+  
+  server.close(async () => {
+    try {
+      await mongoose.connection.close(false)
       console.log('✅ Connections closed. Bye!')
       process.exit(0)
-    })
+    } catch (err) {
+      console.error('Shutdown error:', err)
+      process.exit(1)
+    }
   })
+
   // Force exit nếu quá 10s
   setTimeout(() => process.exit(1), 10000)
 }
