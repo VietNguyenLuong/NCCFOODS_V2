@@ -169,7 +169,7 @@ const shutdown = (signal) => {
   
   server.close(async () => {
     try {
-      await mongoose.connection.close(false)
+      await mongoose.connection.close()
       console.log('✅ Connections closed. Bye!')
       process.exit(0)
     } catch (err) {
