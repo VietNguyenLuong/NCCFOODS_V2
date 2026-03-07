@@ -183,7 +183,11 @@ const orderList = (status) => async (req, res) => {
     'shipped':       'admin/orders-shipped'
   }
   const view = views[status]
-  if (!view) return res.redirect('/admin/orders-pending')
+  // if (!view) return res.redirect('/admin/orders-pending')
+    if (!view) {
+  console.log("Invalid status:", status)
+  return res.redirect('admin/orders-pending')
+}
   res.render(view, { title: 'Don hang', admin: req.session, orders, currentPage: status, from: from||'', to: to||'' })
 }
 
@@ -238,7 +242,7 @@ exports.restoreOrder = async (req, res) => {
 exports.usercancel = async (req, res) => {
   const doc = await Order.findById(req.params.id).select('statusBefore').lean()
   if (!doc) return res.json({ success: false })
-  await Order.findByIdAndUpdate(req.params.id, { status: doc.statusBefore || 'Khách hàng hủy' })
+  await Order.findByIdAndUpdate(req.params.id, { status: doc.statusBefore || 'usercancel' })
   res.json({ success: true })
 }
 // ── PRODUCTS ──────────────────────────────────────────────
