@@ -283,7 +283,8 @@ exports.addProduct = async (req, res) => {
       .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim()
     const count = await Product.countDocuments({ slug: { $regex: `^${base}(-\\d+)?$` } })
     const slug  = count === 0 ? base : `${base}-${count}`
-
+    console.log("REQ BODY:", req.body)
+    console.log("REQ FILE:", req.file)
     await new Product({
       name: name.trim(), slug,
       emoji: emoji || '🍎', description: description || '',
