@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
   subtotal:     { type: Number, default: 0 },
   shipping:     { type: Number, default: 4000 },
   total:        { type: Number, default: 0 },
-  status:       { type: String, enum: ['Chờ xác nhận','Đang lên đơn','Đã gửi','Từ chối','Khách hàng hủy'], default: 'Chờ xác nhận' },
+  status:       { type: String, enum: ['pending','confirmed','shipped','cancel','usercancel'], default: 'pending' },
   statusBefore: String,
   confirmedAt:  Date,
   shippedAt:    Date
