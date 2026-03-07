@@ -183,8 +183,7 @@ const orderList = (status) => async (req, res) => {
     'Đã gửi':       'admin/orders-shipped'
   }
   const view = views[status]
-  if (!view) return res.redirect('/admin/orders/pending')
-
+  if (!view) return res.redirect('/admin/orders-pending')
   res.render(view, { title: 'Don hang', admin: req.session, orders, currentPage: status, from: from||'', to: to||'' })
 }
 
