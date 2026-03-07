@@ -233,10 +233,15 @@ exports.cancelOrder = async (req, res) => {
 exports.restoreOrder = async (req, res) => {
   const doc = await Order.findById(req.params.id).select('statusBefore').lean()
   if (!doc) return res.json({ success: false })
-  await Order.findByIdAndUpdate(req.params.id, { status: doc.statusBefore || 'pending' })
+  await Order.findByIdAndUpdate(req.params.id, { status: doc.statusBefore || 'Chờ xác nhận' })
   res.json({ success: true })
 }
-
+exports.usercancel = async (req, res) => {
+  const doc = await Order.findById(req.params.id).select('statusBefore').lean()
+  if (!doc) return res.json({ success: false })
+  await Order.findByIdAndUpdate(req.params.id, { status: doc.statusBefore || 'Khách hàng hủy' })
+  res.json({ success: true })
+}
 // ── PRODUCTS ──────────────────────────────────────────────
 function parseVariants(body) {
   const labels = [].concat(body.variantLabel || [])

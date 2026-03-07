@@ -34,5 +34,6 @@ router.post('/orders/:id/confirm', requireAdmin, ctrl.confirmOrder)
 router.post('/orders/:id/ship',    requireAdmin, ctrl.shipOrder)
 router.post('/orders/:id/cancel',  requireAdmin, ctrl.cancelOrder)
 router.post('/orders/:id/restore', requireAdmin, ctrl.restoreOrder)
+router.post('/orders/:id/usercancel', ctrl.usercancel)
 
 module.exports = router
