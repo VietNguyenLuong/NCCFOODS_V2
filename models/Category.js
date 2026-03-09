@@ -8,7 +8,6 @@ const categorySchema = new mongoose.Schema({
   isActive:    { type: Boolean, default: true }
 }, { timestamps: true })
 
-categorySchema.index({ slug: 1 })
 categorySchema.index({ isActive: 1 })
 
 module.exports = mongoose.model('Category', categorySchema)
