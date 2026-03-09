@@ -6,7 +6,7 @@ const connectDB = async () => {
     // Tăng hơn không giúp ích vì MongoDB single-node cũng có giới hạn
     const poolSize = parseInt(process.env.MONGO_POOL_SIZE) || 15
 
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://nguyenvietluong02072000_db_user:eX6hqDCRZJjqKgeL@nccfood.utql4va.mongodb.net/?appName=NCCFOOD', {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://nguyenvietluong02072000_db_user:eX6hqDCRZJjqKgeL@nccfood.utql4va.mongodb.net/nccfood?retryWrites=true&w=majority', {
       maxPoolSize:              poolSize,
       minPoolSize:              3,       // giữ sẵn 3, tránh cold start
       serverSelectionTimeoutMS: 5000,
