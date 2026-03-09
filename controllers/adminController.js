@@ -294,7 +294,7 @@ exports.addProduct = async (req, res) => {
       variants: parseVariants(req.body),
       isActive: isActive === 'true' || isActive === true
     }).save()
-    // cache.delByPrefix('products:')
+     cache.delByPrefix('products:')
     res.json({ success: true })
   } catch (e) { res.json({ success: false, message: e.message }) }
 }
