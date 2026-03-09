@@ -279,12 +279,18 @@ exports.getProducts = async (req, res) => {
 exports.addProduct = async (req, res) => {
   try {
     const { name, emoji, description, price, unit, origin, category, badge, isActive } = req.body
+    
+    console.log("REQ BODY:", req.body)
+    console.log("REQ FILE:", req.file)
+    console.log("Worker PID:", process.pid)  // ← thêm dòng này — biết worker nào bị lỗi
+
+    if (!name) return res.json({ success: false, message: 'Thiếu tên sản phẩm' })
+
     const base  = name.toLowerCase().normalize('NFD')
       .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').trim()
     const count = await Product.countDocuments({ slug: { $regex: `^${base}(-\\d+)?$` } })
     const slug  = count === 0 ? base : `${base}-${count}`
-    console.log("REQ BODY:", req.body)
-    console.log("REQ FILE:", req.file)
+
     await new Product({
       name: name.trim(), slug,
       emoji: emoji || '🍎', description: description || '',
@@ -294,14 +300,18 @@ exports.addProduct = async (req, res) => {
       variants: parseVariants(req.body),
       isActive: isActive === 'true' || isActive === true
     }).save()
-     cache.delByPrefix('products:')
-    res.json({ success: true })
-  } catch (e) { res.json({ success: false, message: e.message }) }
-}
 
+    cache.delByPrefix('products:')
+    res.json({ success: true })
+  } catch (e) {
+    console.error("addProduct ERROR:", e.message, "| PID:", process.pid)  // ← log lỗi rõ hơn
+    res.json({ success: false, message: e.message })
+  }
+}
 exports.editProduct = async (req, res) => {
   try {
     const { id, name, emoji, description, price, unit, origin, category, badge, isActive } = req.body
+
     const update = {
       name: name.trim(), emoji: emoji || '🍎', description: description || '',
       price: +price || 0, unit: unit || 'kg', origin: origin || '',
@@ -309,20 +319,31 @@ exports.editProduct = async (req, res) => {
       variants: parseVariants(req.body),
       isActive: isActive === 'true' || isActive === true
     }
+
+    // Nếu có file mới → thêm image vào update luôn
     if (req.file) {
-      // findOneAndUpdate trả về doc cũ trong 1 round-trip
-      const old = await Product.findByIdAndUpdate(id, update, { new: false }).select('image slug').lean()
-      if (old?.image) {
-        const p = path.join(__dirname, '../public', old.image)
-        if (fs.existsSync(p)) fs.unlinkSync(p)
-      }
-      await Product.findByIdAndUpdate(id, { image: '/uploads/products/' + req.file.filename })
-    } else {
-      await Product.findByIdAndUpdate(id, update)
+      update.image = '/uploads/products/' + req.file.filename
     }
+
+    // 1 round-trip duy nhất — lấy doc cũ để xóa ảnh cũ nếu cần
+    const old = await Product.findByIdAndUpdate(id, update, { new: false })
+      .select('image')
+      .lean()
+
+    // Xóa ảnh cũ sau khi update thành công
+    if (req.file && old?.image) {
+      const p = path.join(__dirname, '../public', old.image)
+      if (fs.existsSync(p)) fs.unlinkSync(p)
+    }
+
     cache.delByPrefix('products:')
+    cache.del(`product:detail:${old?.slug}`)  // invalidate cache chi tiết sản phẩm
     res.json({ success: true })
-  } catch (e) { res.json({ success: false, message: e.message }) }
+
+  } catch (e) {
+    console.error('editProduct ERROR:', e.message)
+    res.json({ success: false, message: e.message })
+  }
 }
 
 exports.deleteProduct = async (req, res) => {
