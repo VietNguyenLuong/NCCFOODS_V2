@@ -9,24 +9,29 @@ const variantSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   name:        { type: String, required: true },
-  slug:        { type: String, required: true, unique: true },
+  slug:        { type: String, required: true, unique: true, index: true },
   emoji:       { type: String, default: '🍎' },
   description: { type: String, default: '' },
   price:       { type: Number, required: true },
   unit:        { type: String, default: 'kg' },
   origin:      { type: String, default: '' },
-  category:    { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+  category:    { type: mongoose.Schema.Types.ObjectId, ref: 'Category', index: true },
   badge:       { type: String, enum: ['', 'new', 'hot', 'sale'], default: '' },
   image:       { type: String, default: '' },
   variants:    { type: [variantSchema], default: [] },
   isActive:    { type: Boolean, default: true }
 }, { timestamps: true })
 
-// List page: filter theo danh mục
+// list theo category
 productSchema.index({ isActive: 1, category: 1 })
-// Trang chủ: sort mới nhất
+
+// homepage sản phẩm mới
 productSchema.index({ isActive: 1, createdAt: -1 })
-// Full-text search (thay $regex → full collection scan)
+
+// category page sort mới
+productSchema.index({ category: 1, createdAt: -1 })
+
+// full text search
 productSchema.index({ name: 'text', description: 'text' })
 
 module.exports = mongoose.model('Product', productSchema)

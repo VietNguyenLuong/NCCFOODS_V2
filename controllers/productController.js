@@ -18,7 +18,7 @@ exports.getHome = async (req, res) => {
   const [featured, categories] = await Promise.all([
     cache.getOrSet('products:featured', () =>
       Product.find({ isActive: true })
-        .select('name slug emoji price unit origin badge image category variants')
+        .select('name slug emoji price unit origin badge image category')
         .sort({ createdAt: -1 })
         .limit(8)
         .populate({ path: 'category', select: 'name slug emoji' })
