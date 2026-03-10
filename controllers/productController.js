@@ -14,21 +14,52 @@ async function getActiveCategories() {
 }
 
 // GET /
+// exports.getHome = async (req, res) => {
+//   const [featured, categories] = await Promise.all([
+//     cache.getOrSet('products:featured', () =>
+//       Product.find({ isActive: true })
+//         .select('name slug emoji price unit origin badge image category')
+//         .sort({ createdAt: -1 })
+//         .limit(8)
+//         .populate({ path: 'category', select: 'name slug emoji' })
+//         .lean()
+//     , TTL_HOME),
+//     getActiveCategories()
+//   ])
+//   res.render('pages/home', { title: 'NCCFOODS - Hoa quả tươi ngon', featured, categories })
+// }
 exports.getHome = async (req, res) => {
-  const [featured, categories] = await Promise.all([
-    cache.getOrSet('products:featured', () =>
-      Product.find({ isActive: true })
-        .select('name slug emoji price unit origin badge image category')
-        .sort({ createdAt: -1 })
-        .limit(8)
-        .populate({ path: 'category', select: 'name slug emoji' })
-        .lean()
-    , TTL_HOME),
-    getActiveCategories()
-  ])
-  res.render('pages/home', { title: 'NCCFOODS - Hoa quả tươi ngon', featured, categories })
-}
+  try {
+    const [featured, categories] = await Promise.all([
+      cache.getOrSet(
+        'products:featured',
+        async () => {
+          return await Product.find({ isActive: true })
+            .select('name slug emoji price unit origin badge image category')
+            .sort({ createdAt: -1 })
+            .limit(8)
+            .populate({
+              path: 'category',
+              select: 'name slug emoji',
+              options: { lean: true }
+            })
+            .lean()
+        },
+        TTL_HOME
+      ),
+      cache.getOrSet('categories:active', getActiveCategories, TTL_HOME)
+    ])
 
+    res.render('pages/home', {
+      title: 'NCCFOODS - Hoa quả tươi ngon',
+      featured,
+      categories
+    })
+  } catch (err) {
+    console.error('Home error:', err)
+    res.status(500).render('pages/error', { message: 'Server error' })
+  }
+}
 // GET /products
 exports.getProducts = async (req, res) => {
   const { cat, q } = req.query
