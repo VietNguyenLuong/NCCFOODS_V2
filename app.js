@@ -26,7 +26,13 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
    message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
 })
-
+const loginAdminLimiter = rateLimit({
+ windowMs: 5 * 60 * 1000,  // 10 phút
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+   message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
+})
 // order limit
 const orderLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -132,7 +138,7 @@ const limiter = rateLimit({
 
 app.use(limiter)
 app.use('/auth/login',  loginLimiter)
-app.use('/admin/login', loginLimiter)
+app.use('/admin/login', loginAdminLimiter)
 
 // ── 7. GLOBAL MIDDLEWARE ──────────────────────────────────
 app.use(loadUser)
