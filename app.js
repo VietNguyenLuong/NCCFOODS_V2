@@ -27,11 +27,14 @@ const loginLimiter = rateLimit({
    message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
 })
 const loginAdminLimiter = rateLimit({
- windowMs: 5 * 60 * 1000,  // 10 phút
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
-   message: { success: false, message: 'Qua nhieu lan dang nhap, thu lai sau 15 phut.' }
+ windowMs: 5 * 60 * 1000,
+ max: 20,
+ standardHeaders: true,
+ legacyHeaders: false,
+ message: {
+   success:false,
+   message:'Ban thu dang nhap qua nhieu lan. Thu lai sau 5 phut.'
+ }
 })
 // order limit
 const orderLimiter = rateLimit({
