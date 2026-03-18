@@ -2,7 +2,7 @@ const User = require('../models/User')
 
 const requireLogin = (req, res, next) => {
   if (req.session?.userId) return next()
-  req.session.returnTo = req.originalUrl
+  if (req.session) req.session.returnTo = req.originalUrl  // ← check trước khi ghi
   res.setHeader('Cache-Control', 'no-store')
   res.redirect('/auth/login')
 }
