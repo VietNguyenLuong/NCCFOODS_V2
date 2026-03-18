@@ -3,11 +3,13 @@ const User = require('../models/User')
 const requireLogin = (req, res, next) => {
   if (req.session?.userId) return next()
   req.session.returnTo = req.originalUrl
+  res.setHeader('Cache-Control', 'no-store')
   res.redirect('/auth/login')
 }
 
 const requireAdmin = (req, res, next) => {
   if (req.session?.role === 'admin') return next()
+  res.setHeader('Cache-Control', 'no-store')
   res.redirect('/admin/login')
 }
 

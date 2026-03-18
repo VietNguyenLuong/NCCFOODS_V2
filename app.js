@@ -145,7 +145,18 @@ app.use('/admin/login', loginAdminLimiter)
 
 // ── 7. GLOBAL MIDDLEWARE ──────────────────────────────────
 app.use(loadUser)
-
+app.use((req, res, next) => {
+  // Không cache các trang cần đăng nhập
+  if (req.path.startsWith('/admin') || 
+      req.path.startsWith('/my-orders') || 
+      req.path.startsWith('/cart') ||
+      req.path.startsWith('/auth')) {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
+  }
+  next()
+})
 // ── 8. ROUTES ─────────────────────────────────────────────
 app.use('/',      require('./routes/shop'))
 app.use('/auth',  require('./routes/auth'))
