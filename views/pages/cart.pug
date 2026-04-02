@@ -162,7 +162,7 @@ block scripts
 
       // Build table rows
       const tbody = document.getElementById('orderTableBody')
-      let rows = '', txt = 'DON HANG FRUITSHOP\n========================\n'
+      let rows = '', txt = 'DON HANG NCCFOOD\n========================\n'
       const sub  = cart.reduce((s,i) => s+i.price*i.qty, 0)
       const ship = sub >= 45000 ? 0 : 4000
       cart.forEach(i => {

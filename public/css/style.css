@@ -683,7 +683,7 @@ input, textarea, select { font-family: var(--font-body); }
   .btn-logout{display: none;}
   .btn-asign{display: none;}
   .btn-cart{display: flex;}
-  .btn-outline{display: none;}
+  /* .btn-outline{display: none;} */
    .nav-user-mobile {
   position: relative;
   display: inline-block;

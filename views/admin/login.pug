@@ -3,18 +3,18 @@ html(lang="vi")
   head
     meta(charset="UTF-8")
     meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    title Admin Login — FruitShop
+    title Admin Login — NCCFOOD
     link(rel="stylesheet" href="/css/admin.css")
   body.a-login-wrap
     .a-login-card
       p.a-login-logo 🍊 Admin
-      p.a-login-sub Trang quan tri FruitShop
+      p.a-login-sub Trang quan tri NCCFOOD
       if error
         p.a-login-error ⚠️ #{error}
       form.a-login-form(method="POST" action="/admin/login")
         div
           label Email quan tri
-          input(type="email" name="email" placeholder="admin@fruitshop.vn" required autofocus)
+          input(type="email" name="email" placeholder="admin@NCCFOOD.vn" required autofocus)
         div
           label Mat khau
           input(type="password" name="password" placeholder="••••••••" required)
