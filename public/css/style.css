@@ -978,3 +978,58 @@ input, textarea, select { font-family: var(--font-body); }
   .variant-chips { gap: 8px; }
   .variant-chip { min-width: 80px; padding: 9px 14px; }
 }
+/* Variant selector */
+.variant-label {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 6px;
+}
+
+.variant-chips {
+  display: flex;
+  flex-wrap: wrap;       /* wrap tự nhiên, không ép xuống dòng */
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.variant-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 10px;
+  border: 0.5px solid #ddd;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.variant-chip:hover {
+  border-color: #1D9E75;
+}
+
+.variant-chip.active {
+  border: 1.5px solid #1D9E75;
+  background: #E1F5EE;
+}
+
+.vc-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.2;
+}
+
+.variant-chip.active .vc-label {
+  color: #0F6E56;
+}
+
+.vc-price {
+  font-size: 10px;
+  color: #999;
+  line-height: 1.2;
+}
+
+.variant-chip.active .vc-price {
+  color: #1D9E75;
+}
