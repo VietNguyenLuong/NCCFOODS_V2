@@ -750,11 +750,12 @@ input, textarea, select { font-family: var(--font-body); }
   }
 
   .product-img-v2{
-    max-width:100%;
+    max-width: 100%;
+    border-radius: 65%;
+    height: 100%;
   }
 
   .product-name-v2{
-    font-size:18px;
   }
 }
 
@@ -1091,6 +1092,7 @@ input, textarea, select { font-family: var(--font-body); }
 .price-list-v2{
   list-style:none;
   padding:0;
+  margin: 0 3px;
 }
 
 .price-row-v2{
