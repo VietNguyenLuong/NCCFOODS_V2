@@ -736,6 +736,26 @@ input, textarea, select { font-family: var(--font-body); }
   opacity: 0.7;
 }
 .product-price .price {font-size: 1rem;}
+.product-grid-v2{
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+
+  .product-card-v2{
+    width:100%;
+  }
+
+  .product-img-wrap-v2{
+    height:200px;
+  }
+
+  .product-img-v2{
+    max-width:150px;
+  }
+
+  .product-name-v2{
+    font-size:18px;
+  }
 }
 
 /* ── PRODUCT DETAIL IMAGE ── */
