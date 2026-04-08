@@ -1,5 +1,5 @@
 extends ../layout
-include ../partials/product-card
+include ../partials/product-card-v2
 
 block content
   .page-hero
@@ -17,9 +17,9 @@ block content
             = c.emoji + ' ' + c.name
 
       if products.length
-        .products-grid
+        .products-grid-v2
           each p, i in products
-            +productCard(p, i * 0.06)
+            +productCard2(p, i * 0.06)
       else
         .cart-empty(style="text-align:center;padding:60px 0")
           p(style="font-size:48px;margin-bottom:12px") 🔍
