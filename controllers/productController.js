@@ -82,7 +82,7 @@ exports.getProducts = async (req, res) => {
     getActiveCategories()   // chạy song song với query products
   ])
 
-  res.render('pages/products', { title: 'San pham', products, categories, currentCat: cat || '', q: q || '' })
+  res.render('pages/products', { title: 'Các mặt hàng Em Cường bán ạ ❤️', products, categories, currentCat: cat || '', q: q || '' })
 }
 
 // GET /products/:slug
