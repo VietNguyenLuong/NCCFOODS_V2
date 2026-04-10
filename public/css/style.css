@@ -748,7 +748,6 @@ input, textarea, select { font-family: var(--font-body); }
 
   .product-img-v2{
     max-width: 100%;
-    border-radius: 65%;
     height: 100%;
   }
 
