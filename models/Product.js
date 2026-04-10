@@ -13,6 +13,8 @@ const productSchema = new mongoose.Schema({
   emoji:       { type: String, default: '🍎' },
   description: { type: String, default: '' },
   price:       { type: Number, required: true },
+  input_price:       { type: Number, default: 0 },
+  stt:       { type: Number, default: 0 },
   unit:        { type: String, default: 'kg' },
   origin:      { type: String, default: '' },
   category:    { type: mongoose.Schema.Types.ObjectId, ref: 'Category', index: true },

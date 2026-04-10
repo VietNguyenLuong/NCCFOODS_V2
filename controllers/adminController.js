@@ -269,7 +269,7 @@ exports.getProducts = async (req, res) => {
   const [products, categories] = await Promise.all([
     Product.find(filter)
       .populate({ path: 'category', select: 'name emoji' })
-      .sort({ createdAt: -1 })
+      .sort({ stt: 1, createdAt: -1 })
       .lean(),
     Category.find({ isActive: true }).select('name emoji _id').lean()
   ])
@@ -278,7 +278,7 @@ exports.getProducts = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
   try {
-    const { name, emoji, description, price, unit, origin, category, badge, isActive } = req.body
+    const { name, emoji, description, price, unit, origin, category, badge, isActive,stt, input_price } = req.body
     
     console.log("REQ BODY:", req.body)
     console.log("REQ FILE:", req.file)
@@ -297,6 +297,7 @@ exports.addProduct = async (req, res) => {
       price: +price || 0, unit: unit || 'kg', origin: origin || '',
       category: category || null, badge: badge || '',
       image:    req.file ? '/uploads/products/' + req.file.filename : '',
+      stt:stt, input_price: input_price,
       variants: parseVariants(req.body),
       isActive: isActive === 'true' || isActive === true
     }).save()
@@ -310,13 +311,14 @@ exports.addProduct = async (req, res) => {
 }
 exports.editProduct = async (req, res) => {
   try {
-    const { id, name, emoji, description, price, unit, origin, category, badge, isActive } = req.body
+    const { id, name, emoji, description, price, unit, origin, category, badge, isActive,stt, input_price } = req.body
 
     const update = {
       name: name.trim(), emoji: emoji || '🍎', description: description || '',
       price: +price || 0, unit: unit || 'kg', origin: origin || '',
       category: category || null, badge: badge || '',
       variants: parseVariants(req.body),
+      stt:stt, input_price: input_price,
       isActive: isActive === 'true' || isActive === true
     }
 

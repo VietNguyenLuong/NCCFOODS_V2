@@ -77,6 +77,7 @@ exports.getProducts = async (req, res) => {
       return Product.find(filter)
         .select('name slug emoji price unit origin badge image category variants')
         .populate({ path: 'category', select: 'name slug emoji' })
+        .sort({ stt: 1, createdAt: -1  })   // sắp xếp theo stt từ nhỏ đến lớn
         .lean()
     }, TTL_LIST),
     getActiveCategories()   // chạy song song với query products
